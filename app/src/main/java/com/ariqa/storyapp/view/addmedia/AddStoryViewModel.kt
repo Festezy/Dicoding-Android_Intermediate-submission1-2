@@ -37,8 +37,8 @@ class AddStoryViewModel(private val repository: UserRepository): ViewModel() {
         requestBody: RequestBody
     ){
         viewModelScope.launch {
+            _isLoading.value = true
             try {
-                _isLoading.value = true
                 val apiService = ApiConfig.getApiService()
                 val successResponse = apiService.uploadImage("Bearer $token", imageFile, requestBody)
                 Log.d(TAG, "uploadImage sucess: ${successResponse.message}")

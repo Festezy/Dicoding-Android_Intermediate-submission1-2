@@ -15,7 +15,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.net.toUri
 import com.ariqa.storyapp.R
 import com.ariqa.storyapp.ViewModelFactory
-import com.ariqa.storyapp.databinding.ActivityAddPhotoBinding
+import com.ariqa.storyapp.databinding.ActivityAddStoryBinding
 import com.ariqa.storyapp.helper.getImageUri
 import com.ariqa.storyapp.helper.reduceFileImage
 import com.ariqa.storyapp.helper.uriToFile
@@ -29,7 +29,7 @@ import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 
 class AddStoryActivity : AppCompatActivity() {
-    private lateinit var binding: ActivityAddPhotoBinding
+    private lateinit var binding: ActivityAddStoryBinding
 
     private val viewModel by viewModels<AddStoryViewModel> {
         ViewModelFactory.getInstance(this)
@@ -41,12 +41,8 @@ class AddStoryActivity : AppCompatActivity() {
     @RequiresApi(Build.VERSION_CODES.Q)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityAddPhotoBinding.inflate(layoutInflater)
+        binding = ActivityAddStoryBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
-        viewModel.isLoading.observe(this@AddStoryActivity){
-            showLoading(it)
-        }
 
         viewModel.getSession().observe(this@AddStoryActivity){ user  ->
             token = user.token
@@ -55,6 +51,10 @@ class AddStoryActivity : AppCompatActivity() {
     }
     @RequiresApi(Build.VERSION_CODES.Q)
     private fun setupAction(token: String){
+        viewModel.isLoading.observe(this@AddStoryActivity){
+            showLoading(it)
+        }
+
         binding.galleryButton.setOnClickListener { startGallery() }
         binding.cameraButton.setOnClickListener { startCamera() }
         binding.cameraXButton.setOnClickListener { startCameraX() }
@@ -128,8 +128,6 @@ class AddStoryActivity : AppCompatActivity() {
                 requestImageFile
             )
             viewModel.uploadImage(token, multipartBody, requestBody)
-            showLoading(true)
-            runBlocking { delay(1000) }
             val intent = Intent(this@AddStoryActivity, MainActivity::class.java)
             intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
             startActivity(intent)
@@ -138,7 +136,7 @@ class AddStoryActivity : AppCompatActivity() {
     }
 
     private fun showLoading(isLoading: Boolean) {
-        binding.progressIndicator.visibility = if (isLoading) View.VISIBLE else View.GONE
+        binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
     }
     private fun showToast(message: String) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show()

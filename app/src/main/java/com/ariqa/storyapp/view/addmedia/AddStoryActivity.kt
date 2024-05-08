@@ -25,7 +25,9 @@ import com.ariqa.storyapp.helper.uriToFile
 import com.ariqa.storyapp.view.addmedia.CameraActivity.Companion.CAMERAX_RESULT
 import com.ariqa.storyapp.view.main.MainActivity
 import com.google.gson.Gson
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
@@ -130,22 +132,10 @@ class AddStoryActivity : AppCompatActivity() {
 
             showLoading(true)
             viewModel.uploadImage(token, multipartBody, requestBody)
-            showLoading(false)
-//            lifecycleScope.launch {
-//                try {
-//                    val apiService = ApiConfig.getApiService()
-//                    val successResponse = apiService.uploadImage("Bearer $token", multipartBody, requestBody)
-//                    showToast(successResponse.message)
-//                    Log.d(this@AddStoryActivity.toString(), "uploadImage sucess: ${successResponse.message}")
-//                    showLoading(false)
-//                } catch (e: HttpException) {
-//                    val errorBody = e.response()?.errorBody()?.string()
-//                    val errorResponse = Gson().fromJson(errorBody, ErrorResponse::class.java)
-//                    Log.d(this@AddStoryActivity.toString(), "uploadImage fail: ${errorResponse.message}")
-//                    showToast(errorResponse.message)
-//                    showLoading(false)
-//                }
-//            }
+            runBlocking { delay(1000) }
+            val intent = Intent(this@AddStoryActivity, MainActivity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
+            startActivity(intent)
 
         } ?: showToast(getString(R.string.empty_image_warning))
     }

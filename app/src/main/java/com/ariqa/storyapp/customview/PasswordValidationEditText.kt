@@ -31,7 +31,7 @@ class PasswordValidationEditText @JvmOverloads constructor(
 
             override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
                 if (s.toString().length < 8) {
-                    setError("Password tidak boleh kurang dari 8 karakter", null)
+                    setError(context.getString(R.string.password_tidak_boleh_kurang_dari_8_karakter), null)
                 } else {
                     error = null
                 }
@@ -43,12 +43,6 @@ class PasswordValidationEditText @JvmOverloads constructor(
             }
         })
     }
-
-//    override fun onDraw(canvas: Canvas) {
-//        super.onDraw(canvas)
-//        hint = "Masukkan nama Anda"
-//        textAlignment = View.TEXT_ALIGNMENT_CENTER
-//    }
 
     private fun showClearButton() {
         setButtonDrawables(endOfTheText = clearButtonImage)

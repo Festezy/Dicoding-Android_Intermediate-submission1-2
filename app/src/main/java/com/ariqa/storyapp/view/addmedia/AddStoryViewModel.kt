@@ -11,7 +11,7 @@ import com.ariqa.storyapp.data.preference.UserModel
 import com.ariqa.storyapp.data.response.ErrorResponse
 import com.ariqa.storyapp.data.retrofit.ApiConfig
 import com.google.gson.Gson
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
@@ -22,6 +22,9 @@ class AddStoryViewModel(private val repository: UserRepository): ViewModel() {
     private val _isLoading = MutableLiveData<Boolean>()
     val isLoading = _isLoading
 
+    private val _response = MutableStateFlow("")
+    val response = _response
+
     init {
         getSession()
     }
@@ -31,24 +34,26 @@ class AddStoryViewModel(private val repository: UserRepository): ViewModel() {
     }
 
     // Fungsi upload image
-    fun uploadImage(
+    suspend fun uploadImage(
         token: String,
         imageFile: MultipartBody.Part,
         requestBody: RequestBody
     ){
+        _isLoading.value = true
         viewModelScope.launch {
-            _isLoading.value = true
             try {
                 val apiService = ApiConfig.getApiService()
                 val successResponse = apiService.uploadImage("Bearer $token", imageFile, requestBody)
+                _response.value = successResponse.message
                 Log.d(TAG, "uploadImage sucess: ${successResponse.message}")
-                delay(500)
             } catch (e: HttpException){
                 val errorBody = e.response()?.errorBody()?.string()
                 val errorResponse = Gson().fromJson(errorBody, ErrorResponse::class.java)
+                _response.value = errorResponse.message
                 Log.d(TAG, "uploadImage fail: ${errorResponse.message}")
+            } finally {
+                _isLoading.value = false
             }
-            _isLoading.value = false
         }
     }
 

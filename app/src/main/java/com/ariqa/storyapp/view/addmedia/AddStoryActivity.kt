@@ -13,6 +13,7 @@ import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.net.toUri
+import androidx.lifecycle.lifecycleScope
 import com.ariqa.storyapp.R
 import com.ariqa.storyapp.ViewModelFactory
 import com.ariqa.storyapp.databinding.ActivityAddStoryBinding
@@ -21,8 +22,8 @@ import com.ariqa.storyapp.helper.reduceFileImage
 import com.ariqa.storyapp.helper.uriToFile
 import com.ariqa.storyapp.view.addmedia.CameraActivity.Companion.CAMERAX_RESULT
 import com.ariqa.storyapp.view.main.MainActivity
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
@@ -127,17 +128,25 @@ class AddStoryActivity : AppCompatActivity() {
                 imageFile.name,
                 requestImageFile
             )
-            viewModel.uploadImage(token, multipartBody, requestBody)
-            val intent = Intent(this@AddStoryActivity, MainActivity::class.java)
-            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
-            startActivity(intent)
 
+            lifecycleScope.launch {
+                viewModel.uploadImage(token, multipartBody, requestBody)
+                viewModel.response.collectLatest {
+                    if (it != ""){
+                        showToast(it)
+                        val intent = Intent(this@AddStoryActivity, MainActivity::class.java)
+                        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
+                        startActivity(intent)
+                    }
+                }
+            }
         } ?: showToast(getString(R.string.empty_image_warning))
     }
 
     private fun showLoading(isLoading: Boolean) {
         binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
     }
+
     private fun showToast(message: String) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }

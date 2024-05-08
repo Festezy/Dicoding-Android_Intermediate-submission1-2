@@ -5,6 +5,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.ariqa.storyapp.data.UserRepository
 import com.ariqa.storyapp.di.Injection
+import com.ariqa.storyapp.view.addmedia.AddPhotoActivity
+import com.ariqa.storyapp.view.addmedia.AddPhotoViewModel
 import com.ariqa.storyapp.view.login.LoginViewModel
 import com.ariqa.storyapp.view.main.MainViewModel
 import com.ariqa.storyapp.view.signup.SignUpViewModel
@@ -22,6 +24,9 @@ class ViewModelFactory(private val repository: UserRepository) : ViewModelProvid
             }
             modelClass.isAssignableFrom(SignUpViewModel::class.java) ->{
                 SignUpViewModel() as T
+            }
+            modelClass.isAssignableFrom(AddPhotoViewModel::class.java) ->{
+                AddPhotoViewModel(repository) as T
             }
             else -> throw IllegalArgumentException("Unknown ViewModel class: " + modelClass.name)
         }

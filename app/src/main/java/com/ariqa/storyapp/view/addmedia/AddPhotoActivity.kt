@@ -12,11 +12,13 @@ import android.view.View
 import android.widget.Toast
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import androidx.lifecycle.lifecycleScope
 import com.ariqa.storyapp.R
+import com.ariqa.storyapp.ViewModelFactory
 import com.ariqa.storyapp.data.response.ErrorResponse
 import com.ariqa.storyapp.data.retrofit.ApiConfig
 import com.ariqa.storyapp.databinding.ActivityAddPhotoBinding
@@ -24,6 +26,7 @@ import com.ariqa.storyapp.helper.getImageUri
 import com.ariqa.storyapp.helper.reduceFileImage
 import com.ariqa.storyapp.helper.uriToFile
 import com.ariqa.storyapp.view.addmedia.CameraActivity.Companion.CAMERAX_RESULT
+import com.ariqa.storyapp.view.main.MainViewModel
 import com.google.gson.Gson
 import kotlinx.coroutines.launch
 import okhttp3.MediaType.Companion.toMediaType
@@ -35,8 +38,12 @@ import retrofit2.HttpException
 class AddPhotoActivity : AppCompatActivity() {
     private lateinit var binding: ActivityAddPhotoBinding
 
-    private var currentImageUri: Uri? = null
+    private val viewModel by viewModels<AddPhotoViewModel> {
+        ViewModelFactory.getInstance(this)
+    }
 
+    private var currentImageUri: Uri? = null
+    var token: String = ""
 
     @RequiresApi(Build.VERSION_CODES.Q)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -44,13 +51,17 @@ class AddPhotoActivity : AppCompatActivity() {
         binding = ActivityAddPhotoBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-
-
+        viewModel.getSession().observe(this@AddPhotoActivity){user  ->
+            token = user.token
+            setupAction(token)
+        }
+    }
+    @RequiresApi(Build.VERSION_CODES.Q)
+    private fun setupAction(token: String){
         binding.galleryButton.setOnClickListener { startGallery() }
         binding.cameraButton.setOnClickListener { startCamera() }
         binding.cameraXButton.setOnClickListener { startCameraX() }
-        binding.uploadButton.setOnClickListener { uploadImage() }
-
+        binding.uploadButton.setOnClickListener { uploadImage(token) }
     }
 
     private fun startGallery() {
@@ -103,13 +114,14 @@ class AddPhotoActivity : AppCompatActivity() {
     }
 
     @RequiresApi(Build.VERSION_CODES.Q)
-    private fun uploadImage() {
+    private fun uploadImage(token: String) {
         currentImageUri?.let { uri ->
             val imageFile = uriToFile(uri, this).reduceFileImage()
             Log.d("Image File", "showImage: ${imageFile.path}")
             val description = "Ini adalah deksripsi gambar"
             showLoading(true)
 
+            val test = "multipart/form-data"
             val requestBody = description.toRequestBody("text/plain".toMediaType())
             val requestImageFile = imageFile.asRequestBody("image/jpeg".toMediaType())
             val multipartBody = MultipartBody.Part.createFormData(
@@ -117,18 +129,17 @@ class AddPhotoActivity : AppCompatActivity() {
                 imageFile.name,
                 requestImageFile
             )
-
-            // edit
-            val token = ""
             lifecycleScope.launch {
                 try {
                     val apiService = ApiConfig.getApiService()
-                    val successResponse = apiService.uploadImage("multipart/form-data","Bearer $token",multipartBody, requestBody)
+                    val successResponse = apiService.uploadImage("Bearer $token", multipartBody, requestBody)
                     showToast(successResponse.message)
+                    Log.d(this@AddPhotoActivity.toString(), "uploadImage sucess: ${successResponse.message}")
                     showLoading(false)
                 } catch (e: HttpException) {
                     val errorBody = e.response()?.errorBody()?.string()
                     val errorResponse = Gson().fromJson(errorBody, ErrorResponse::class.java)
+                    Log.d(this@AddPhotoActivity.toString(), "uploadImage fail: ${errorResponse.message}")
                     showToast(errorResponse.message)
                     showLoading(false)
                 }

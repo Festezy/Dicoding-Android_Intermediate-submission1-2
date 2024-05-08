@@ -70,16 +70,23 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@+id/cameraButton" />
 
-        <TextView
-            android:id="@+id/textDescriptions"
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/descriptionEditTextLayout"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
-            android:layout_height="350dp"
-            android:layout_marginTop="20dp"
+            android:layout_height="wrap_content"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/cameraButton"
-            tools:text="@string/descriptions" />
+            app:layout_constraintTop_toBottomOf="@+id/cameraButton">
+
+            <EditText
+                android:id="@+id/textDescriptions"
+                android:layout_width="match_parent"
+                android:layout_height="350dp"
+                android:layout_marginTop="20dp"
+                tools:text="@string/descriptions" />
+        </com.google.android.material.textfield.TextInputLayout>
 
         <Button
             android:id="@+id/uploadButton"
@@ -93,7 +100,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textDescriptions"
+            app:layout_constraintTop_toBottomOf="@+id/descriptionEditTextLayout"
             app:layout_constraintVertical_bias="1.0" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>

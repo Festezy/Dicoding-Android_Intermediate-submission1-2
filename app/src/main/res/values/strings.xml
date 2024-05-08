@@ -17,4 +17,11 @@
     <string name="settings">Settings</string>
     <string name="descriptions">descriptions</string>
     <string name="banner">Banner</string>
+    <string name="addphoto">addPhoto</string>
+
+    <string name="camera_x">CameraX</string>
+    <string name="camera">Kamera</string>
+    <string name="gallery">Galeri</string>
+    <string name="upload">Unggah</string>
+    <string name="empty_image_warning">Silakan masukkan berkas gambar terlebih dahulu.</string>
 </resources>

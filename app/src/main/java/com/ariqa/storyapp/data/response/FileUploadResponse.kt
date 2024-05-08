@@ -2,9 +2,9 @@ package com.ariqa.storyapp.data.response
 
 import com.google.gson.annotations.SerializedName
 
-data class ErrorResponse(
-    @field:SerializedName("message")
-    val message: String,
+data class FileUploadResponse(
     @field:SerializedName("error")
-    val error: Boolean
+    val error: Boolean,
+    @field:SerializedName("message")
+    val message: String
 )

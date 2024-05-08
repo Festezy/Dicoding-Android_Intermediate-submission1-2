@@ -21,7 +21,6 @@ import com.ariqa.storyapp.data.response.ListStoryItem
 import com.ariqa.storyapp.databinding.ActivityMainBinding
 import com.ariqa.storyapp.view.addmedia.AddStoryActivity
 import com.ariqa.storyapp.view.login.LoginActivity
-import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -63,8 +62,9 @@ class MainActivity : AppCompatActivity() {
         }
 
         // delay agar tidak ke Login Activity sebelum mendapat token
-        runBlocking { delay(1500) }
+
         viewModel.getSession().observe(this) { user ->
+            runBlocking { delay(1500) }
             if (user.token.isNotEmpty() && user.token != "") {
                 token = user.token
                 setupView()

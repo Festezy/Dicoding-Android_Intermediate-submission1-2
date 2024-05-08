@@ -3,7 +3,6 @@ package com.ariqa.storyapp.view.addmedia
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -12,27 +11,22 @@ import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.net.toUri
-import androidx.lifecycle.lifecycleScope
 import com.ariqa.storyapp.R
 import com.ariqa.storyapp.ViewModelFactory
-import com.ariqa.storyapp.data.response.ErrorResponse
-import com.ariqa.storyapp.data.retrofit.ApiConfig
 import com.ariqa.storyapp.databinding.ActivityAddPhotoBinding
 import com.ariqa.storyapp.helper.getImageUri
 import com.ariqa.storyapp.helper.reduceFileImage
 import com.ariqa.storyapp.helper.uriToFile
 import com.ariqa.storyapp.view.addmedia.CameraActivity.Companion.CAMERAX_RESULT
 import com.ariqa.storyapp.view.main.MainActivity
-import com.google.gson.Gson
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
-import retrofit2.HttpException
 
 class AddStoryActivity : AppCompatActivity() {
     private lateinit var binding: ActivityAddPhotoBinding
@@ -49,6 +43,10 @@ class AddStoryActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityAddPhotoBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        viewModel.isLoading.observe(this@AddStoryActivity){
+            showLoading(it)
+        }
 
         viewModel.getSession().observe(this@AddStoryActivity){ user  ->
             token = user.token
@@ -129,9 +127,8 @@ class AddStoryActivity : AppCompatActivity() {
                 imageFile.name,
                 requestImageFile
             )
-
-            showLoading(true)
             viewModel.uploadImage(token, multipartBody, requestBody)
+            showLoading(true)
             runBlocking { delay(1000) }
             val intent = Intent(this@AddStoryActivity, MainActivity::class.java)
             intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK

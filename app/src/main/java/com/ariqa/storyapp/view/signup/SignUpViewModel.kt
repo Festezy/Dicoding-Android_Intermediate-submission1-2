@@ -2,14 +2,13 @@ package com.ariqa.storyapp.view.signup
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
-import com.ariqa.storyapp.data.UserRepository
 import com.ariqa.storyapp.data.response.RegisterResponse
 import com.ariqa.storyapp.data.retrofit.ApiConfig
 import com.google.gson.Gson
 import kotlinx.coroutines.flow.MutableStateFlow
 import retrofit2.HttpException
 
-class SignUpViewModel(): ViewModel() {
+class SignUpViewModel : ViewModel() {
     private val _responseMessage = MutableStateFlow<String?>("error")
     val responseMessage = _responseMessage
 

@@ -11,22 +11,15 @@ import com.ariqa.storyapp.data.preference.UserModel
 import com.ariqa.storyapp.data.response.ErrorResponse
 import com.ariqa.storyapp.data.response.ListStoryItem
 import com.ariqa.storyapp.data.retrofit.ApiConfig
-import com.ariqa.storyapp.view.login.LoginViewModel
 import com.google.gson.Gson
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
 
 class MainViewModel(private val repository: UserRepository) : ViewModel() {
-    private val _responseMessage = MutableStateFlow<String?>(null)
-    val responseMessage = _responseMessage
 
     private val _getAllStoriesItem = MutableStateFlow<List<ListStoryItem>>(emptyList())
     val getAllStoriesItem = _getAllStoriesItem
-
-    private val _getToken = MutableLiveData<String?>()
-    val getToken = _getToken
 
     private val _isLoading = MutableLiveData<Boolean>()
     val isLoading = _isLoading
@@ -42,13 +35,11 @@ class MainViewModel(private val repository: UserRepository) : ViewModel() {
                 val successResponse = apiService.getStories("Bearer $token")
                 _getAllStoriesItem.value = successResponse.listStory
 
-                _responseMessage.value = successResponse.message
                 Log.d(TAG, "MainViewModel success: ${successResponse.message}")
             } catch (e: HttpException){
                 val errorBody = e.response()?.errorBody()?.string()
                 val errorResponse = Gson().fromJson(errorBody, ErrorResponse::class.java)
 
-                _responseMessage.value = errorResponse.message
                 Log.d(TAG, "MainViewModel error: ${errorResponse.message}")
             }
             _isLoading.value = false

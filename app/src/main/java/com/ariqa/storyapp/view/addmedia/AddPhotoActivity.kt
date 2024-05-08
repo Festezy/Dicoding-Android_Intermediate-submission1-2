@@ -118,10 +118,12 @@ class AddPhotoActivity : AppCompatActivity() {
                 requestImageFile
             )
 
+            // edit
+            val token = ""
             lifecycleScope.launch {
                 try {
                     val apiService = ApiConfig.getApiService()
-                    val successResponse = apiService.uploadImage("Bearer ",multipartBody, requestBody)
+                    val successResponse = apiService.uploadImage("multipart/form-data","Bearer $token",multipartBody, requestBody)
                     showToast(successResponse.message)
                     showLoading(false)
                 } catch (e: HttpException) {

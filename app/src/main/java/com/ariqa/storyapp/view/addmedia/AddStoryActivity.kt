@@ -1,8 +1,6 @@
 package com.ariqa.storyapp.view.addmedia
 
-import android.Manifest
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
@@ -14,7 +12,6 @@ import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
-import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import androidx.lifecycle.lifecycleScope
 import com.ariqa.storyapp.R
@@ -26,7 +23,6 @@ import com.ariqa.storyapp.helper.getImageUri
 import com.ariqa.storyapp.helper.reduceFileImage
 import com.ariqa.storyapp.helper.uriToFile
 import com.ariqa.storyapp.view.addmedia.CameraActivity.Companion.CAMERAX_RESULT
-import com.ariqa.storyapp.view.main.MainViewModel
 import com.google.gson.Gson
 import kotlinx.coroutines.launch
 import okhttp3.MediaType.Companion.toMediaType
@@ -35,10 +31,10 @@ import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import retrofit2.HttpException
 
-class AddPhotoActivity : AppCompatActivity() {
+class AddStoryActivity : AppCompatActivity() {
     private lateinit var binding: ActivityAddPhotoBinding
 
-    private val viewModel by viewModels<AddPhotoViewModel> {
+    private val viewModel by viewModels<AddStoryViewModel> {
         ViewModelFactory.getInstance(this)
     }
 
@@ -51,7 +47,7 @@ class AddPhotoActivity : AppCompatActivity() {
         binding = ActivityAddPhotoBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        viewModel.getSession().observe(this@AddPhotoActivity){user  ->
+        viewModel.getSession().observe(this@AddStoryActivity){ user  ->
             token = user.token
             setupAction(token)
         }
@@ -118,10 +114,9 @@ class AddPhotoActivity : AppCompatActivity() {
         currentImageUri?.let { uri ->
             val imageFile = uriToFile(uri, this).reduceFileImage()
             Log.d("Image File", "showImage: ${imageFile.path}")
-            val description = "Ini adalah deksripsi gambar"
+            val description = binding.textDescriptions.text.toString()
             showLoading(true)
 
-            val test = "multipart/form-data"
             val requestBody = description.toRequestBody("text/plain".toMediaType())
             val requestImageFile = imageFile.asRequestBody("image/jpeg".toMediaType())
             val multipartBody = MultipartBody.Part.createFormData(
@@ -134,12 +129,12 @@ class AddPhotoActivity : AppCompatActivity() {
                     val apiService = ApiConfig.getApiService()
                     val successResponse = apiService.uploadImage("Bearer $token", multipartBody, requestBody)
                     showToast(successResponse.message)
-                    Log.d(this@AddPhotoActivity.toString(), "uploadImage sucess: ${successResponse.message}")
+                    Log.d(this@AddStoryActivity.toString(), "uploadImage sucess: ${successResponse.message}")
                     showLoading(false)
                 } catch (e: HttpException) {
                     val errorBody = e.response()?.errorBody()?.string()
                     val errorResponse = Gson().fromJson(errorBody, ErrorResponse::class.java)
-                    Log.d(this@AddPhotoActivity.toString(), "uploadImage fail: ${errorResponse.message}")
+                    Log.d(this@AddStoryActivity.toString(), "uploadImage fail: ${errorResponse.message}")
                     showToast(errorResponse.message)
                     showLoading(false)
                 }

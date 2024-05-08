@@ -18,7 +18,7 @@ import com.ariqa.storyapp.R
 import com.ariqa.storyapp.ViewModelFactory
 import com.ariqa.storyapp.data.response.ListStoryItem
 import com.ariqa.storyapp.databinding.ActivityMainBinding
-import com.ariqa.storyapp.view.addmedia.AddPhotoActivity
+import com.ariqa.storyapp.view.addmedia.AddStoryActivity
 import com.ariqa.storyapp.view.login.LoginActivity
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.flow.collectLatest
@@ -86,7 +86,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         binding.addPhoto.setOnClickListener {
-            startActivity(Intent(this@MainActivity, AddPhotoActivity::class.java))
+            startActivity(Intent(this@MainActivity, AddStoryActivity::class.java))
         }
 
         lifecycleScope.launch {

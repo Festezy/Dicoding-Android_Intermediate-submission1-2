@@ -6,7 +6,7 @@ import androidx.lifecycle.asLiveData
 import com.ariqa.storyapp.data.UserRepository
 import com.ariqa.storyapp.data.preference.UserModel
 
-class AddPhotoViewModel(private val repository: UserRepository): ViewModel() {
+class AddStoryViewModel(private val repository: UserRepository): ViewModel() {
 
     init {
         getSession()

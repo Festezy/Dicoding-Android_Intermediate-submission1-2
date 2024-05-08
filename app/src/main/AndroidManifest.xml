@@ -22,7 +22,7 @@
             android:name=".view.addmedia.CameraActivity"
             android:exported="false" />
         <activity
-            android:name=".view.addmedia.AddPhotoActivity"
+            android:name=".view.addmedia.AddStoryActivity"
             android:exported="false" />
         <activity
             android:name=".view.detail.DetailstoriesActivity"

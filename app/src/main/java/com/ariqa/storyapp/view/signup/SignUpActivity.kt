@@ -11,7 +11,6 @@ import android.view.WindowManager
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.lifecycle.lifecycleScope
-import com.ariqa.storyapp.R
 import com.ariqa.storyapp.ViewModelFactory
 import com.ariqa.storyapp.databinding.ActivitySignUpBinding
 import com.google.android.material.snackbar.Snackbar
@@ -22,7 +21,6 @@ class SignUpActivity : AppCompatActivity() {
     private val viewModel by viewModels<SignUpViewModel> {
         ViewModelFactory.getInstance(this)
     }
-//    private lateinit var viewModel: SignUpViewModel
 
     private lateinit var binding: ActivitySignUpBinding
     override fun onCreate(savedInstanceState: Bundle?) {

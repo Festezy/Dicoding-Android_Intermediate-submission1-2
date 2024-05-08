@@ -6,6 +6,7 @@ import android.content.pm.PackageManager
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.View
 import android.view.WindowInsets
 import android.view.WindowManager
 import android.widget.Toast
@@ -21,8 +22,10 @@ import com.ariqa.storyapp.databinding.ActivityMainBinding
 import com.ariqa.storyapp.view.addmedia.AddStoryActivity
 import com.ariqa.storyapp.view.login.LoginActivity
 import com.google.android.material.snackbar.Snackbar
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
@@ -59,12 +62,13 @@ class MainActivity : AppCompatActivity() {
             requestPermissionLauncher.launch(REQUIRED_PERMISSION)
         }
 
+        // delay agar tidak ke Login Activity sebelum mendapat token
+        runBlocking { delay(1500) }
         viewModel.getSession().observe(this) { user ->
             if (user.token.isNotEmpty() && user.token != "") {
                 token = user.token
                 setupView()
                 setupAction(token)
-
             } else {
                 startActivity(Intent(this, LoginActivity::class.java))
                 finish()
@@ -76,7 +80,7 @@ class MainActivity : AppCompatActivity() {
     private fun setupAction(token: String) {
         binding.topAppBar.setOnMenuItemClickListener {
             when (it.itemId) {
-                R.id.settings -> {
+                R.id.logout -> {
                     viewModel.logout()
                     true
                 }
@@ -106,7 +110,7 @@ class MainActivity : AppCompatActivity() {
             rvListStories.setHasFixedSize(true)
         }
         if (items.isNotEmpty()) {
-            Snackbar.make(binding.root, "Result ${items.size}", Snackbar.LENGTH_SHORT).show()
+            showToast("Result ${items.size}")
         }
     }
 
@@ -121,33 +125,23 @@ class MainActivity : AppCompatActivity() {
             )
         }
         supportActionBar?.hide()
+
+        //observer
+        viewModel.isLoading.observe(this@MainActivity) {
+            showLoading(it)
+        }
+    }
+
+    private fun showToast(message: String) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+    }
+
+    private fun showLoading(isLoading: Boolean) {
+        binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
     }
 
     companion object {
         private const val REQUIRED_PERMISSION = Manifest.permission.CAMERA
     }
-
-//    private fun playAnimation() {
-//        ObjectAnimator.ofFloat(binding.imageView, View.TRANSLATION_X, -30f, 30f).apply {
-//            duration = 6000
-//            repeatCount = ObjectAnimator.INFINITE
-//            repeatMode = ObjectAnimator.REVERSE
-//        }.start()
-//
-//        //textView
-//        val nameText = ObjectAnimator.ofFloat(binding.nameTextView, View.ALPHA, 1f).setDuration(100)
-//        val messageText = ObjectAnimator.ofFloat(binding.messageTextView, View.ALPHA, 1f).setDuration(100)
-//        //button
-//        val logout = ObjectAnimator.ofFloat(binding.logoutButton, View.ALPHA, 1f).setDuration(100)
-//
-//        val together = AnimatorSet().apply {
-//            playTogether(logout)
-//        }
-//
-//        AnimatorSet().apply {
-//            playSequentially(nameText, messageText, together)
-//            start()
-//        }
-//    }
 
 }

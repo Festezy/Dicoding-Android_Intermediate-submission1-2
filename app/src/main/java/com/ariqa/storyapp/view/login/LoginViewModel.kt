@@ -20,8 +20,12 @@ class LoginViewModel(private val repository: UserRepository) : ViewModel() {
     private val _getToken = MutableStateFlow<String?>("")
     val getToken = _getToken
 
+    private val _isLoading = MutableLiveData<Boolean>()
+    val isLoading = _isLoading
+
     suspend fun login(email: String, password: String){
         try {
+            _isLoading.value = true
             val apiService = ApiConfig.getApiService()
             val successResponse = apiService.login(email, password)
             _responseMessage.value = successResponse.message
@@ -36,6 +40,7 @@ class LoginViewModel(private val repository: UserRepository) : ViewModel() {
 
             Log.d(TAG, "LoginViewModel errorResponse: ${errorResponse.message}")
         }
+        _isLoading.value = false
     }
 
     fun saveSession(user: UserModel) {

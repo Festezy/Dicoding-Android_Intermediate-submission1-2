@@ -18,9 +18,11 @@ import com.ariqa.storyapp.databinding.ActivityLoginBinding
 import com.ariqa.storyapp.view.main.MainActivity
 import com.ariqa.storyapp.view.signup.SignUpActivity
 import com.google.android.material.snackbar.Snackbar
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
 class LoginActivity : AppCompatActivity() {
     private lateinit var binding: ActivityLoginBinding
@@ -59,29 +61,16 @@ class LoginActivity : AppCompatActivity() {
                     }
                 }
             }
-
-//            lifecycleScope.launch {
-//                viewModel.login(email, password)
-//                viewModel.getToken.collect() { value ->
-//                    if (value != null) {
-//                        token = value
-//                    }
-//                    viewModel.saveSession(UserModel(email, token))
-//                }
-//
-////                    viewModel.saveSession(UserModel(email, token))
-//                viewModel.responseMessage.collectLatest {
-//                    showToast(it!!)
-//                }
-//            }
-
-            startActivity(Intent(this@LoginActivity, MainActivity::class.java))
         }
     }
 
     private fun showToast(message: String) {
         Snackbar.make(binding.root, message, Snackbar.LENGTH_SHORT).show()
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+    }
+
+    private fun showLoading(isLoading: Boolean) {
+        binding.progressIndicator.visibility = if (isLoading) View.VISIBLE else View.GONE
     }
 
     private fun setupView() {
@@ -95,5 +84,9 @@ class LoginActivity : AppCompatActivity() {
             )
         }
         supportActionBar?.hide()
+
+        viewModel.isLoading.observe(this@LoginActivity) {
+            showLoading(it)
+        }
     }
 }

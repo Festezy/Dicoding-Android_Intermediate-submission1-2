@@ -28,12 +28,16 @@ class MainViewModel(private val repository: UserRepository) : ViewModel() {
     private val _getToken = MutableLiveData<String?>()
     val getToken = _getToken
 
+    private val _isLoading = MutableLiveData<Boolean>()
+    val isLoading = _isLoading
+
     init {
         getSession()
     }
     fun getAllStories(token: String){
         viewModelScope.launch {
             try {
+                _isLoading.value = true
                 val apiService = ApiConfig.getApiService()
                 val successResponse = apiService.getStories("Bearer $token")
                 _getAllStoriesItem.value = successResponse.listStory
@@ -47,6 +51,7 @@ class MainViewModel(private val repository: UserRepository) : ViewModel() {
                 _responseMessage.value = errorResponse.message
                 Log.d(TAG, "MainViewModel error: ${errorResponse.message}")
             }
+            _isLoading.value = false
         }
     }
 

@@ -6,4 +6,5 @@
     </style>
 
     <style name="Theme.StoryApp" parent="Base.Theme.StoryApp" />
+
 </resources>

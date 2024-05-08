@@ -2,11 +2,10 @@ package com.ariqa.storyapp.view.main
 
 import android.app.Activity
 import android.content.Intent
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.core.app.ActivityOptionsCompat
+import androidx.core.util.Pair
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -29,7 +28,15 @@ class AllStoriesAdapter: ListAdapter<ListStoryItem, AllStoriesAdapter.MyViewHold
                         it.putExtra(DetailstoriesActivity.EXTRA_NAME, listStories.name)
                         it.putExtra(DetailstoriesActivity.EXTRA_DESC, listStories.description)
 
-                        root.context.startActivity(it)
+                        val optionsCompat: ActivityOptionsCompat =
+                            ActivityOptionsCompat.makeSceneTransitionAnimation(
+                                itemView.context as Activity,
+                                Pair(photoUrl, "photo"),
+                                Pair(textName, "name"),
+                                Pair(textDescriptions, "description"),
+                            )
+
+                        root.context.startActivity(it, optionsCompat.toBundle())
                     }
                 }
             }

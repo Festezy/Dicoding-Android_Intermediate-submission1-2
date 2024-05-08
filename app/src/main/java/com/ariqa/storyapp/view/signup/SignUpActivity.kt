@@ -32,7 +32,7 @@ class SignUpActivity : AppCompatActivity() {
 
         setupView()
         setupAction()
-//        playAnimation()
+        playAnimation()
     }
 
     private fun setupAction() {
@@ -42,7 +42,6 @@ class SignUpActivity : AppCompatActivity() {
             val password = binding.passwordEditText.text.toString()
 
             lifecycleScope.launch {
-//                viewModel.inputUser(name, email, password)
                 viewModel.signUp(name, email, password)
                 viewModel.responseMessage.collectLatest {
                     showToast(it!!)
@@ -62,6 +61,14 @@ class SignUpActivity : AppCompatActivity() {
             )
         }
         supportActionBar?.hide()
+
+        viewModel.isLoading.observe(this@SignUpActivity){
+            showLoading(it)
+        }
+    }
+
+    private fun showLoading(isLoading: Boolean) {
+        binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
     }
 
     private fun showToast(message: String) {
@@ -69,40 +76,40 @@ class SignUpActivity : AppCompatActivity() {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }
 
-//    private fun playAnimation() {
-//        ObjectAnimator.ofFloat(binding.imageView, View.TRANSLATION_X, -30f, 30f).apply {
-//            duration = 6000
-//            repeatCount = ObjectAnimator.INFINITE
-//            repeatMode = ObjectAnimator.REVERSE
-//        }.start()
-//
-//        //button
-//        val daftar = ObjectAnimator.ofFloat(binding.signupButton, View.ALPHA, 1f).setDuration(100)
-//        //textView
-//        val title = ObjectAnimator.ofFloat(binding.titleTextView, View.ALPHA, 1f).setDuration(100)
-//        val nameText = ObjectAnimator.ofFloat(binding.nameTextView, View.ALPHA, 1f).setDuration(100)
-//        val emailText =
-//            ObjectAnimator.ofFloat(binding.emailTextView, View.ALPHA, 1f).setDuration(100)
-//        val passwordText =
-//            ObjectAnimator.ofFloat(binding.passwordTextView, View.ALPHA, 1f).setDuration(100)
-//        //editText
-//        val nameEditText =
-//            ObjectAnimator.ofFloat(binding.nameEditTextLayout, View.ALPHA, 1f).setDuration(100)
-//        val emailEditText =
-//            ObjectAnimator.ofFloat(binding.emailEditTextLayout, View.ALPHA, 1f).setDuration(100)
-//        val passwordEditText =
-//            ObjectAnimator.ofFloat(binding.passwordEditTextLayout, View.ALPHA, 1f).setDuration(100)
-//
-//        val together = AnimatorSet().apply {
-//            playTogether(daftar)
-//        }
-//
-//        AnimatorSet().apply {
-//            playSequentially(
-//                title, nameText, nameEditText, emailText, emailEditText,
-//                passwordText, passwordEditText, together
-//            )
-//            start()
-//        }
-//    }
+    private fun playAnimation() {
+        ObjectAnimator.ofFloat(binding.imageView, View.TRANSLATION_X, -30f, 30f).apply {
+            duration = 6000
+            repeatCount = ObjectAnimator.INFINITE
+            repeatMode = ObjectAnimator.REVERSE
+        }.start()
+
+        //button
+        val daftar = ObjectAnimator.ofFloat(binding.signupButton, View.ALPHA, 1f).setDuration(100)
+        //textView
+        val title = ObjectAnimator.ofFloat(binding.titleTextView, View.ALPHA, 1f).setDuration(100)
+        val nameText = ObjectAnimator.ofFloat(binding.nameTextView, View.ALPHA, 1f).setDuration(100)
+        val emailText =
+            ObjectAnimator.ofFloat(binding.emailTextView, View.ALPHA, 1f).setDuration(100)
+        val passwordText =
+            ObjectAnimator.ofFloat(binding.passwordTextView, View.ALPHA, 1f).setDuration(100)
+        //editText
+        val nameEditText =
+            ObjectAnimator.ofFloat(binding.nameEditTextLayout, View.ALPHA, 1f).setDuration(100)
+        val emailEditText =
+            ObjectAnimator.ofFloat(binding.emailEditTextLayout, View.ALPHA, 1f).setDuration(100)
+        val passwordEditText =
+            ObjectAnimator.ofFloat(binding.passwordEditTextLayout, View.ALPHA, 1f).setDuration(100)
+
+        val together = AnimatorSet().apply {
+            playTogether(daftar)
+        }
+
+        AnimatorSet().apply {
+            playSequentially(
+                title, nameText, nameEditText, emailText, emailEditText,
+                passwordText, passwordEditText, together
+            )
+            start()
+        }
+    }
 }

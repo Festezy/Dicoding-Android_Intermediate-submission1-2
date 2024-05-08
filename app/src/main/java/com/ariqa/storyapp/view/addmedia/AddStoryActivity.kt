@@ -23,6 +23,7 @@ import com.ariqa.storyapp.helper.getImageUri
 import com.ariqa.storyapp.helper.reduceFileImage
 import com.ariqa.storyapp.helper.uriToFile
 import com.ariqa.storyapp.view.addmedia.CameraActivity.Companion.CAMERAX_RESULT
+import com.ariqa.storyapp.view.main.MainActivity
 import com.google.gson.Gson
 import kotlinx.coroutines.launch
 import okhttp3.MediaType.Companion.toMediaType
@@ -39,7 +40,7 @@ class AddStoryActivity : AppCompatActivity() {
     }
 
     private var currentImageUri: Uri? = null
-    var token: String = ""
+    private var token: String = ""
 
     @RequiresApi(Build.VERSION_CODES.Q)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -57,7 +58,9 @@ class AddStoryActivity : AppCompatActivity() {
         binding.galleryButton.setOnClickListener { startGallery() }
         binding.cameraButton.setOnClickListener { startCamera() }
         binding.cameraXButton.setOnClickListener { startCameraX() }
-        binding.uploadButton.setOnClickListener { uploadImage(token) }
+        binding.uploadButton.setOnClickListener {
+            uploadImage(token)
+        }
     }
 
     private fun startGallery() {
@@ -124,21 +127,25 @@ class AddStoryActivity : AppCompatActivity() {
                 imageFile.name,
                 requestImageFile
             )
-            lifecycleScope.launch {
-                try {
-                    val apiService = ApiConfig.getApiService()
-                    val successResponse = apiService.uploadImage("Bearer $token", multipartBody, requestBody)
-                    showToast(successResponse.message)
-                    Log.d(this@AddStoryActivity.toString(), "uploadImage sucess: ${successResponse.message}")
-                    showLoading(false)
-                } catch (e: HttpException) {
-                    val errorBody = e.response()?.errorBody()?.string()
-                    val errorResponse = Gson().fromJson(errorBody, ErrorResponse::class.java)
-                    Log.d(this@AddStoryActivity.toString(), "uploadImage fail: ${errorResponse.message}")
-                    showToast(errorResponse.message)
-                    showLoading(false)
-                }
-            }
+
+            showLoading(true)
+            viewModel.uploadImage(token, multipartBody, requestBody)
+            showLoading(false)
+//            lifecycleScope.launch {
+//                try {
+//                    val apiService = ApiConfig.getApiService()
+//                    val successResponse = apiService.uploadImage("Bearer $token", multipartBody, requestBody)
+//                    showToast(successResponse.message)
+//                    Log.d(this@AddStoryActivity.toString(), "uploadImage sucess: ${successResponse.message}")
+//                    showLoading(false)
+//                } catch (e: HttpException) {
+//                    val errorBody = e.response()?.errorBody()?.string()
+//                    val errorResponse = Gson().fromJson(errorBody, ErrorResponse::class.java)
+//                    Log.d(this@AddStoryActivity.toString(), "uploadImage fail: ${errorResponse.message}")
+//                    showToast(errorResponse.message)
+//                    showLoading(false)
+//                }
+//            }
 
         } ?: showToast(getString(R.string.empty_image_warning))
     }

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp"
+    tools:context=".view.detail.DetailstoriesActivity">
+
+    <ImageView
+        android:id="@+id/photoUrlImageView"
+        android:layout_width="match_parent"
+        android:layout_height="150dp"
+        android:contentDescription="@string/banner"
+        android:scaleType="fitXY"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:src="@drawable/image_dicoding" />
+
+    <TextView
+        android:id="@+id/textName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:maxLines="1"
+        app:layout_constraintEnd_toEndOf="@id/photoUrlImageView"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@id/photoUrlImageView"
+        app:layout_constraintTop_toBottomOf="@id/photoUrlImageView"
+        tools:text="@string/name" />
+
+    <TextView
+        android:id="@+id/textDescriptions"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="5dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@id/textName"
+        app:layout_constraintStart_toStartOf="@id/textName"
+        app:layout_constraintTop_toBottomOf="@id/textName"
+        app:layout_constraintVertical_bias="0.0"
+        tools:text="@string/descriptions" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

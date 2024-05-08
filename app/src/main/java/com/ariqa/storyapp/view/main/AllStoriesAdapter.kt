@@ -1,5 +1,6 @@
 package com.ariqa.storyapp.view.main
 
+import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.view.LayoutInflater
@@ -10,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView
 import coil.load
 import com.ariqa.storyapp.data.response.ListStoryItem
 import com.ariqa.storyapp.databinding.ItemGetAllstoriesBinding
+import com.ariqa.storyapp.view.detail.DetailstoriesActivity
 
 class AllStoriesAdapter: ListAdapter<ListStoryItem, AllStoriesAdapter.MyViewHolder>(DIFF_CALLBACK) {
     class MyViewHolder(private val binding: ItemGetAllstoriesBinding): RecyclerView.ViewHolder(binding.root) {
@@ -28,6 +30,15 @@ class AllStoriesAdapter: ListAdapter<ListStoryItem, AllStoriesAdapter.MyViewHold
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
         val items = getItem(position)
         holder.bind(items)
+
+        holder.itemView.setOnClickListener {
+            Intent(holder.itemView.context, DetailstoriesActivity::class.java).also {
+                it.putExtra(DetailstoriesActivity.EXTRA_PHOTO_URL, items.photoUrl)
+                it.putExtra(DetailstoriesActivity.EXTRA_NAME, items.name)
+                it.putExtra(DetailstoriesActivity.EXTRA_DESC, items.description)
+                holder.itemView.context.startActivity(it)
+            }
+        }
     }
 
     companion object {

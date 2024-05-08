@@ -28,6 +28,9 @@ class MainViewModel(private val repository: UserRepository) : ViewModel() {
     private val _getToken = MutableLiveData<String?>()
     val getToken = _getToken
 
+    init {
+        getSession()
+    }
     fun getAllStories(token: String){
         viewModelScope.launch {
             try {
@@ -36,13 +39,13 @@ class MainViewModel(private val repository: UserRepository) : ViewModel() {
                 _getAllStoriesItem.value = successResponse.listStory
 
                 _responseMessage.value = successResponse.message
-                Log.d(TAG, "getAllStories success: ${successResponse.message}")
+                Log.d(TAG, "MainViewModel success: ${successResponse.message}")
             } catch (e: HttpException){
                 val errorBody = e.response()?.errorBody()?.string()
                 val errorResponse = Gson().fromJson(errorBody, ErrorResponse::class.java)
 
                 _responseMessage.value = errorResponse.message
-                Log.d(TAG, "getAllStories error: ${errorResponse.message}")
+                Log.d(TAG, "MainViewModel error: ${errorResponse.message}")
             }
         }
     }

@@ -3,30 +3,33 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
+    android:layout_height="250dp"
     android:orientation="vertical"
-    android:layout_height="250dp">
+    app:cardCornerRadius="5dp"
+    app:cardUseCompatPadding="true">
+
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:padding="10dp"
         android:layout_height="match_parent">
 
-        <ImageButton
+        <ImageView
             android:id="@+id/photoUrl"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:src="@drawable/image_dicoding"
+            android:layout_height="150dp"
+            android:contentDescription="@string/banner"
+            tools:src="@drawable/image_dicoding"
+            android:scaleType="fitXY"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            android:contentDescription="@string/banner" />
+            app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:id="@+id/textName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:maxLines="1"
             android:layout_marginTop="10dp"
+            android:maxLines="1"
             app:layout_constraintEnd_toEndOf="@id/photoUrl"
             app:layout_constraintHorizontal_bias="0.019"
             app:layout_constraintStart_toStartOf="@id/photoUrl"
@@ -37,8 +40,8 @@
             android:id="@+id/textDescriptions"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
             android:maxLines="1"
-            android:layout_marginTop="10dp"
             app:layout_constraintEnd_toEndOf="@id/textName"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="@id/textName"

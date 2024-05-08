@@ -1,12 +1,9 @@
 package com.ariqa.storyapp.view.main
 
-import android.animation.AnimatorSet
-import android.animation.ObjectAnimator
 import android.content.Intent
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.view.View
 import android.view.WindowInsets
 import android.view.WindowManager
 import androidx.activity.viewModels
@@ -28,7 +25,7 @@ class MainActivity : AppCompatActivity() {
         ViewModelFactory.getInstance(this)
     }
 
-    var token = ""
+    private var token = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,8 +36,8 @@ class MainActivity : AppCompatActivity() {
             if (user.token.isNotEmpty() && user.token != "") {
                 token = user.token
                 setupView()
-                setupAction()
-                viewModel.getAllStories(token)
+                setupAction(token)
+
             } else {
                 startActivity(Intent(this, LoginActivity::class.java))
                 finish()
@@ -49,7 +46,7 @@ class MainActivity : AppCompatActivity() {
 //        playAnimation()
     }
 
-    private fun setupAction() {
+    private fun setupAction(token: String) {
         binding.topAppBar.setOnMenuItemClickListener {
             when (it.itemId) {
                 R.id.settings -> {
@@ -66,6 +63,7 @@ class MainActivity : AppCompatActivity() {
                 setAllStoriesList(it)
             }
         }
+        viewModel.getAllStories(token)
     }
 
     private fun setAllStoriesList(items: List<ListStoryItem>) {

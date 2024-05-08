@@ -14,9 +14,6 @@ import com.ariqa.storyapp.databinding.ItemGetAllstoriesBinding
 class AllStoriesAdapter: ListAdapter<ListStoryItem, AllStoriesAdapter.MyViewHolder>(DIFF_CALLBACK) {
     class MyViewHolder(private val binding: ItemGetAllstoriesBinding): RecyclerView.ViewHolder(binding.root) {
         fun bind(listStories: ListStoryItem) {
-//            Picasso.get().load(listStories.photoUrl).into(binding.photoUrl);
-//            val image: Bitmap = BitmapFactory.decodeStream(java.net.URL(listStories.photoUrl).openStream())
-//            binding.photoUrl.setImageBitmap(image)
             binding.photoUrl.load(listStories.photoUrl)
             binding.textName.text = "${listStories.name}"
             binding.textDescriptions.text = "${listStories.description}"

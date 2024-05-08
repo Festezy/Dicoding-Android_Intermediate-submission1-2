@@ -36,7 +36,6 @@ class LoginActivity : AppCompatActivity() {
 
         setupView()
         setupAction()
-        playAnimation()
     }
 
     private fun setupAction() {
@@ -47,24 +46,34 @@ class LoginActivity : AppCompatActivity() {
         binding.loginButton.setOnClickListener {
             val email = binding.emailEditText.text.toString()
             val password = binding.passwordEditText.text.toString()
-            var token = ""
-
-
 
             lifecycleScope.launch {
                 viewModel.login(email, password)
-                viewModel.getToken.collect() {tok ->
-                    if (tok != null){
-                        viewModel.saveSession(UserModel(email, tok))
+                viewModel.getToken.collect { token ->
+                    if (token != null) {
+                        viewModel.saveSession(UserModel(email, token))
+                        startActivity(Intent(this@LoginActivity, MainActivity::class.java))
+                        finish() // Tutup LoginActivity agar tidak bisa kembali dengan tombol kembali
+                    } else {
+                        showToast("Failed to get token")
                     }
-                    token = it.toString()
-                }
-
-//                    viewModel.saveSession(UserModel(email, token))
-                viewModel.responseMessage.collectLatest {
-                    showToast(it!!)
                 }
             }
+
+//            lifecycleScope.launch {
+//                viewModel.login(email, password)
+//                viewModel.getToken.collect() { value ->
+//                    if (value != null) {
+//                        token = value
+//                    }
+//                    viewModel.saveSession(UserModel(email, token))
+//                }
+//
+////                    viewModel.saveSession(UserModel(email, token))
+//                viewModel.responseMessage.collectLatest {
+//                    showToast(it!!)
+//                }
+//            }
 
             startActivity(Intent(this@LoginActivity, MainActivity::class.java))
         }
@@ -86,43 +95,5 @@ class LoginActivity : AppCompatActivity() {
             )
         }
         supportActionBar?.hide()
-    }
-
-    private fun playAnimation() {
-        ObjectAnimator.ofFloat(binding.imageView, View.TRANSLATION_X, -30f, 30f).apply {
-            duration = 6000
-            repeatCount = ObjectAnimator.INFINITE
-            repeatMode = ObjectAnimator.REVERSE
-        }.start()
-
-        //textView
-        val titleText =
-            ObjectAnimator.ofFloat(binding.titleTextView, View.ALPHA, 1f).setDuration(100)
-        val messageText =
-            ObjectAnimator.ofFloat(binding.messageTextView, View.ALPHA, 1f).setDuration(100)
-        val emailText =
-            ObjectAnimator.ofFloat(binding.emailTextView, View.ALPHA, 1f).setDuration(100)
-        val passwordText =
-            ObjectAnimator.ofFloat(binding.passwordTextView, View.ALPHA, 1f).setDuration(100)
-        //editText
-        val emailEditText =
-            ObjectAnimator.ofFloat(binding.emailEditTextLayout, View.ALPHA, 1f).setDuration(100)
-        val passwordEditText =
-            ObjectAnimator.ofFloat(binding.passwordEditTextLayout, View.ALPHA, 1f).setDuration(100)
-        //button
-        val login = ObjectAnimator.ofFloat(binding.loginButton, View.ALPHA, 1f).setDuration(100)
-        val signup = ObjectAnimator.ofFloat(binding.signupButton, View.ALPHA, 1f).setDuration(100)
-
-        val together = AnimatorSet().apply {
-            playTogether(signup, login)
-        }
-
-        AnimatorSet().apply {
-            playSequentially(
-                titleText, messageText, emailText, emailEditText, passwordText,
-                passwordEditText, together
-            )
-            start()
-        }
     }
 }

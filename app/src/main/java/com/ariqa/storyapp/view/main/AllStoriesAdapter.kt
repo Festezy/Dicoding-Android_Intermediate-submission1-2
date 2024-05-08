@@ -1,10 +1,12 @@
 package com.ariqa.storyapp.view.main
 
+import android.app.Activity
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.core.app.ActivityOptionsCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -16,9 +18,22 @@ import com.ariqa.storyapp.view.detail.DetailstoriesActivity
 class AllStoriesAdapter: ListAdapter<ListStoryItem, AllStoriesAdapter.MyViewHolder>(DIFF_CALLBACK) {
     class MyViewHolder(private val binding: ItemGetAllstoriesBinding): RecyclerView.ViewHolder(binding.root) {
         fun bind(listStories: ListStoryItem) {
-            binding.photoUrl.load(listStories.photoUrl)
-            binding.textName.text = "${listStories.name}"
-            binding.textDescriptions.text = "${listStories.description}"
+            binding.apply {
+                photoUrl.load(listStories.photoUrl)
+                textName.text = "${listStories.name}"
+                textDescriptions.text = "${listStories.description}"
+
+                root.setOnClickListener {
+                    Intent(root.context, DetailstoriesActivity::class.java).also {
+                        it.putExtra(DetailstoriesActivity.EXTRA_PHOTO_URL, listStories.photoUrl)
+                        it.putExtra(DetailstoriesActivity.EXTRA_NAME, listStories.name)
+                        it.putExtra(DetailstoriesActivity.EXTRA_DESC, listStories.description)
+
+                        root.context.startActivity(it)
+                    }
+                }
+            }
+
         }
     }
 
@@ -30,15 +45,6 @@ class AllStoriesAdapter: ListAdapter<ListStoryItem, AllStoriesAdapter.MyViewHold
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
         val items = getItem(position)
         holder.bind(items)
-
-        holder.itemView.setOnClickListener {
-            Intent(holder.itemView.context, DetailstoriesActivity::class.java).also {
-                it.putExtra(DetailstoriesActivity.EXTRA_PHOTO_URL, items.photoUrl)
-                it.putExtra(DetailstoriesActivity.EXTRA_NAME, items.name)
-                it.putExtra(DetailstoriesActivity.EXTRA_DESC, items.description)
-                holder.itemView.context.startActivity(it)
-            }
-        }
     }
 
     companion object {

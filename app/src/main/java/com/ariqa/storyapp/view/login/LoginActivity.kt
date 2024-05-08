@@ -18,6 +18,7 @@ import com.ariqa.storyapp.databinding.ActivityLoginBinding
 import com.ariqa.storyapp.view.main.MainActivity
 import com.ariqa.storyapp.view.signup.SignUpActivity
 import com.google.android.material.snackbar.Snackbar
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -48,24 +49,24 @@ class LoginActivity : AppCompatActivity() {
             val password = binding.passwordEditText.text.toString()
             var token = ""
 
-            viewModel.getToken.observe(this){
-                token = it.toString()
-            }
-            viewModel.saveSession(UserModel(email, token))
+
 
             lifecycleScope.launch {
                 viewModel.login(email, password)
+                viewModel.getToken.collect() {tok ->
+                    if (tok != null){
+                        viewModel.saveSession(UserModel(email, tok))
+                    }
+                    token = it.toString()
+                }
+
+//                    viewModel.saveSession(UserModel(email, token))
                 viewModel.responseMessage.collectLatest {
                     showToast(it!!)
                 }
             }
+
             startActivity(Intent(this@LoginActivity, MainActivity::class.java))
-//            viewModel.saveSession(UserModel(email, "sample_token"))
-//            AlertDialog.Builder(this).apply {
-//                setTitle("Yeah!")
-//                create()
-//                show()
-//            }
         }
     }
 

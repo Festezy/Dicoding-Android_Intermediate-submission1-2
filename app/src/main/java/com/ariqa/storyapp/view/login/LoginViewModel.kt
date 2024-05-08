@@ -17,7 +17,7 @@ class LoginViewModel(private val repository: UserRepository) : ViewModel() {
     private val _responseMessage = MutableStateFlow<String?>(null)
     val responseMessage = _responseMessage
 
-    private val _getToken = MutableLiveData<String?>()
+    private val _getToken = MutableStateFlow<String?>("")
     val getToken = _getToken
 
     suspend fun login(email: String, password: String){
@@ -25,9 +25,10 @@ class LoginViewModel(private val repository: UserRepository) : ViewModel() {
             val apiService = ApiConfig.getApiService()
             val successResponse = apiService.login(email, password)
             _responseMessage.value = successResponse.message
-            _getToken.value = successResponse.loginResult?.token
+            _getToken.value = successResponse.loginResult!!.token
 
             Log.d(TAG, "LoginViewModel successResponse: ${successResponse.message}")
+            Log.d(TAG, "LoginViewModel successResult: ${successResponse.loginResult}")
         } catch (e: HttpException){
             val errorBody = e.response()?.errorBody()?.string()
             val errorResponse = Gson().fromJson(errorBody, LoginResponse::class.java)

@@ -10,10 +10,16 @@ import android.view.View
 import android.view.WindowInsets
 import android.view.WindowManager
 import androidx.activity.viewModels
+import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.ariqa.storyapp.R
 import com.ariqa.storyapp.ViewModelFactory
+import com.ariqa.storyapp.data.response.ListStoryItem
 import com.ariqa.storyapp.databinding.ActivityMainBinding
 import com.ariqa.storyapp.view.login.LoginActivity
+import com.google.android.material.snackbar.Snackbar
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
@@ -22,15 +28,19 @@ class MainActivity : AppCompatActivity() {
         ViewModelFactory.getInstance(this)
     }
 
+    var token = ""
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         viewModel.getSession().observe(this) { user ->
-            if (user.isLogin) {
+            if (user.token.isNotEmpty() && user.token != "") {
+                token = user.token
                 setupView()
                 setupAction()
+                viewModel.getAllStories(token)
             } else {
                 startActivity(Intent(this, LoginActivity::class.java))
                 finish()
@@ -51,9 +61,24 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-//        binding.logoutButton.setOnClickListener {
-//            viewModel.logout()
-//        }
+        lifecycleScope.launch {
+            viewModel.getAllStoriesItem.collectLatest {
+                setAllStoriesList(it)
+            }
+        }
+    }
+
+    private fun setAllStoriesList(items: List<ListStoryItem>) {
+        val adapter = AllStoriesAdapter()
+        adapter.submitList(items)
+        with(binding) {
+            rvListStories.layoutManager = LinearLayoutManager(this@MainActivity)
+            rvListStories.adapter = adapter
+            rvListStories.setHasFixedSize(true)
+        }
+        if (items.isNotEmpty()) {
+            Snackbar.make(binding.root, "Result ${items.size}", Snackbar.LENGTH_SHORT).show()
+        }
     }
 
     private fun setupView() {

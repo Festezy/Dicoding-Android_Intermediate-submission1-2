@@ -37,24 +37,17 @@ class UserRepository private constructor(
     suspend fun signUp(
         name: String, email: String, password: String
     ): LiveData<Result<RegisterResponse>> {
-//        _isLoading.value = true
         val result = MediatorLiveData<Result<RegisterResponse>>()
         result.value = Result.Loading
         try {
             val apiService = ApiConfig.getApiService()
             val successResponse = apiService.register(name, email, password)
             result.value = Result.Success(successResponse)
-//            Log.d(SignUpViewModel.TAG, "SignUpViewModel successResponse: ${successResponse.message}")
-
-//            _responseMessage.value = successResponse.message
         } catch (e: HttpException) {
             val errorBody = e.response()?.errorBody()?.string()
             val errorResponse = Gson().fromJson(errorBody, ErrorResponse::class.java)
             result.value = Result.Error(errorResponse.message)
-//            Log.d(SignUpViewModel.TAG, "SignUpViewModel errorResponse: ${errorResponse.message}")
-//            _responseMessage.value = errorResponse.message
         }
-//        _isLoading.value = false
         return result
     }
 

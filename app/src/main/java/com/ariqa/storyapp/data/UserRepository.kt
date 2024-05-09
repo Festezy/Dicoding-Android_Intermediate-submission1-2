@@ -1,20 +1,16 @@
 package com.ariqa.storyapp.data
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
-import androidx.lifecycle.viewModelScope
 import com.ariqa.storyapp.data.preference.UserModel
 import com.ariqa.storyapp.data.preference.UserPreference
 import com.ariqa.storyapp.data.response.ErrorResponse
 import com.ariqa.storyapp.data.response.FileUploadResponse
 import com.ariqa.storyapp.data.response.ListStoryItem
 import com.ariqa.storyapp.data.retrofit.ApiConfig
-import com.ariqa.storyapp.view.addmedia.AddStoryViewModel
 import com.google.gson.Gson
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
@@ -23,7 +19,7 @@ import retrofit2.HttpException
 class UserRepository private constructor(
     private val userPreference: UserPreference
 ) {
-    val token = runBlocking { userPreference.getSession().first().token }
+    private val token = runBlocking { userPreference.getSession().first().token }
 
     suspend fun saveSession(user: UserModel) {
         userPreference.saveSession(user)

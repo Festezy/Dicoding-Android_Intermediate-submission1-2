@@ -27,24 +27,8 @@ class MainViewModel(private val repository: UserRepository) : ViewModel() {
     init {
         getSession()
     }
-    fun getAllStories(token: String){
-        viewModelScope.launch {
-            try {
-                _isLoading.value = true
-                val apiService = ApiConfig.getApiService()
-                val successResponse = apiService.getStories("Bearer $token")
-                _getAllStoriesItem.value = successResponse.listStory
 
-                Log.d(TAG, "MainViewModel success: ${successResponse.message}")
-            } catch (e: HttpException){
-                val errorBody = e.response()?.errorBody()?.string()
-                val errorResponse = Gson().fromJson(errorBody, ErrorResponse::class.java)
-
-                Log.d(TAG, "MainViewModel error: ${errorResponse.message}")
-            }
-            _isLoading.value = false
-        }
-    }
+    suspend fun getStory()= repository.getStory()
 
     fun getSession(): LiveData<UserModel> {
         return repository.getSession().asLiveData()

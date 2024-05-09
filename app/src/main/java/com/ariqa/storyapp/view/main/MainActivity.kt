@@ -4,27 +4,26 @@ import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.view.WindowInsets
 import android.view.WindowManager
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.ariqa.storyapp.R
 import com.ariqa.storyapp.ViewModelFactory
+import com.ariqa.storyapp.data.Result
 import com.ariqa.storyapp.data.response.ListStoryItem
 import com.ariqa.storyapp.databinding.ActivityMainBinding
 import com.ariqa.storyapp.view.addmedia.AddStoryActivity
 import com.ariqa.storyapp.view.login.LoginActivity
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
@@ -61,23 +60,19 @@ class MainActivity : AppCompatActivity() {
             requestPermissionLauncher.launch(REQUIRED_PERMISSION)
         }
 
-        // delay agar tidak ke Login Activity sebelum mendapat token
-
+        showLoading(true)
         viewModel.getSession().observe(this) { user ->
-            runBlocking { delay(1500) }
             if (user.token.isNotEmpty() && user.token != "") {
-                token = user.token
                 setupView()
-                setupAction(token)
+                setupAction()
             } else {
                 startActivity(Intent(this, LoginActivity::class.java))
                 finish()
             }
         }
-//        playAnimation()
     }
 
-    private fun setupAction(token: String) {
+    private fun setupAction() {
         binding.topAppBar.setOnMenuItemClickListener {
             when (it.itemId) {
                 R.id.logout -> {
@@ -94,11 +89,22 @@ class MainActivity : AppCompatActivity() {
         }
 
         lifecycleScope.launch {
-            viewModel.getAllStoriesItem.collectLatest {
-                setAllStoriesList(it)
+            viewModel.getStory().observe(this@MainActivity){ result ->
+                when(result){
+                    is Result.Loading -> {
+                        showLoading(true)
+                    }
+                    is Result.Error -> {
+                        showToast(result.error)
+                    }
+                    is Result.Success -> {
+                        Log.d("MainActivity", "Main: ${result.data}")
+                        setAllStoriesList(result.data.toList())
+                        showLoading(false)
+                    }
+                }
             }
         }
-        viewModel.getAllStories(token)
     }
 
     private fun setAllStoriesList(items: List<ListStoryItem>) {

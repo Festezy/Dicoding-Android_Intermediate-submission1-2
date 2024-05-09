@@ -1,9 +1,8 @@
 package com.ariqa.storyapp.view.detail
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
 import coil.load
-import com.ariqa.storyapp.R
 import com.ariqa.storyapp.databinding.ActivityDetailstoriesBinding
 
 class DetailstoriesActivity : AppCompatActivity() {

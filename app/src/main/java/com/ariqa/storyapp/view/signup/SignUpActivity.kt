@@ -37,6 +37,7 @@ class SignUpActivity : AppCompatActivity() {
 
     private fun setupAction() {
         binding.signupButton.setOnClickListener {
+            showLoading(true)
             val name = binding.nameEditText.text.toString()
             val email = binding.emailEditText.text.toString()
             val password = binding.passwordEditText.text.toString()
@@ -45,7 +46,7 @@ class SignUpActivity : AppCompatActivity() {
                 viewModel.postSignup(name, email, password).observe(this@SignUpActivity){result ->
                     when(result){
                         is Result.Loading -> {
-                            showLoading(true)
+
                         }
                         is Result.Error -> {
                             showToast(result.error)
@@ -54,6 +55,7 @@ class SignUpActivity : AppCompatActivity() {
                         is Result.Success -> {
                             showToast(result.data.message)
                             showLoading(false)
+                            Log.d("SignupActivity", "SignupActivity success: ${result.data.message}")
                             startActivity(Intent(this@SignUpActivity, LoginActivity::class.java))
                             finish()
                         }
@@ -78,7 +80,7 @@ class SignUpActivity : AppCompatActivity() {
     }
 
     private fun showLoading(isLoading: Boolean) {
-        binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
+        binding.progressIndicator.visibility = if (isLoading) View.VISIBLE else View.GONE
     }
 
     private fun showToast(message: String) {

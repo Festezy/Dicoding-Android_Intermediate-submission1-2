@@ -16,13 +16,13 @@ import androidx.core.net.toUri
 import androidx.lifecycle.lifecycleScope
 import com.ariqa.storyapp.R
 import com.ariqa.storyapp.ViewModelFactory
+import com.ariqa.storyapp.data.Result
 import com.ariqa.storyapp.databinding.ActivityAddStoryBinding
 import com.ariqa.storyapp.helper.getImageUri
 import com.ariqa.storyapp.helper.reduceFileImage
 import com.ariqa.storyapp.helper.uriToFile
 import com.ariqa.storyapp.view.addmedia.CameraActivity.Companion.CAMERAX_RESULT
 import com.ariqa.storyapp.view.main.MainActivity
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
@@ -45,22 +45,19 @@ class AddStoryActivity : AppCompatActivity() {
         binding = ActivityAddStoryBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        viewModel.getSession().observe(this@AddStoryActivity){ user  ->
+        viewModel.getSession().observe(this@AddStoryActivity) { user ->
             token = user.token
-            setupAction(token)
+            setupAction()
         }
     }
-    @RequiresApi(Build.VERSION_CODES.Q)
-    private fun setupAction(token: String){
-        viewModel.isLoading.observe(this@AddStoryActivity){
-            showLoading(it)
-        }
 
+    @RequiresApi(Build.VERSION_CODES.Q)
+    private fun setupAction() {
         binding.galleryButton.setOnClickListener { startGallery() }
         binding.cameraButton.setOnClickListener { startCamera() }
         binding.cameraXButton.setOnClickListener { startCameraX() }
         binding.uploadButton.setOnClickListener {
-            uploadImage(token)
+            uploadImage()
         }
     }
 
@@ -114,12 +111,12 @@ class AddStoryActivity : AppCompatActivity() {
     }
 
     @RequiresApi(Build.VERSION_CODES.Q)
-    private fun uploadImage(token: String) {
+    private fun uploadImage() {
+        showLoading(true)
         currentImageUri?.let { uri ->
             val imageFile = uriToFile(uri, this).reduceFileImage()
             Log.d("Image File", "showImage: ${imageFile.path}")
             val description = binding.textDescriptions.text.toString()
-            showLoading(true)
 
             val requestBody = description.toRequestBody("text/plain".toMediaType())
             val requestImageFile = imageFile.asRequestBody("image/jpeg".toMediaType())
@@ -130,15 +127,28 @@ class AddStoryActivity : AppCompatActivity() {
             )
 
             lifecycleScope.launch {
-                viewModel.uploadImage(token, multipartBody, requestBody)
-                viewModel.response.collectLatest {
-                    if (it != ""){
-                        showToast(it)
-                        val intent = Intent(this@AddStoryActivity, MainActivity::class.java)
-                        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
-                        startActivity(intent)
+                viewModel.uploadImage(multipartBody, requestBody)
+                    .observe(this@AddStoryActivity) { result ->
+                        when (result) {
+                            is Result.Loading -> {
+                                showLoading(true)
+                            }
+
+                            is Result.Error -> {
+                                showToast(result.error)
+                                Log.d("AddStoryActivity", "uploadImage error: ${result.error}")
+                            }
+
+                            is Result.Success -> {
+                                showToast(result.data.message)
+                                showLoading(false)
+                                val intent = Intent(this@AddStoryActivity, MainActivity::class.java)
+                                intent.flags =
+                                    Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
+                                startActivity(intent)
+                            }
+                        }
                     }
-                }
             }
         } ?: showToast(getString(R.string.empty_image_warning))
     }

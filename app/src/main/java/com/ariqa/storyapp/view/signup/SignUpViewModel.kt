@@ -1,37 +1,12 @@
 package com.ariqa.storyapp.view.signup
 
-import android.util.Log
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.ariqa.storyapp.data.response.RegisterResponse
-import com.ariqa.storyapp.data.retrofit.ApiConfig
-import com.google.gson.Gson
-import kotlinx.coroutines.flow.MutableStateFlow
-import retrofit2.HttpException
+import com.ariqa.storyapp.data.UserRepository
 
-class SignUpViewModel : ViewModel() {
-    private val _responseMessage = MutableStateFlow<String?>("error")
-    val responseMessage = _responseMessage
-
-    private val _isLoading = MutableLiveData<Boolean>()
-    val isLoading = _isLoading
-
-    suspend fun signUp(name: String, email: String, password: String) {
-        _isLoading.value = true
-        try {
-            val apiService = ApiConfig.getApiService()
-            val successResponse = apiService.register(name, email, password)
-            Log.d(TAG, "SignUpViewModel successResponse: ${successResponse.message}")
-
-            _responseMessage.value = successResponse.message
-        } catch (e: HttpException) {
-            val errorBody = e.response()?.errorBody()?.string()
-            val errorResponse = Gson().fromJson(errorBody, RegisterResponse::class.java)
-            Log.d(TAG, "SignUpViewModel errorResponse: ${errorResponse.message}")
-            _responseMessage.value = errorResponse.message
-        }
-        _isLoading.value = false
-    }
+class SignUpViewModel (private val repository: UserRepository) : ViewModel() {
+    suspend fun postSignup(
+        name: String, email: String,  password: String
+    ) = repository.signUp(name, email, password)
 
     companion object {
         private const val TAG = "SignupViewModel"

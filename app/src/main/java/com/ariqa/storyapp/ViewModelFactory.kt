@@ -22,7 +22,7 @@ class ViewModelFactory(private val repository: UserRepository) : ViewModelProvid
                 LoginViewModel(repository) as T
             }
             modelClass.isAssignableFrom(SignUpViewModel::class.java) ->{
-                SignUpViewModel() as T
+                SignUpViewModel(repository) as T
             }
             modelClass.isAssignableFrom(AddStoryViewModel::class.java) ->{
                 AddStoryViewModel(repository) as T

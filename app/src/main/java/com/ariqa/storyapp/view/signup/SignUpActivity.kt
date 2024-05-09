@@ -2,19 +2,21 @@ package com.ariqa.storyapp.view.signup
 
 import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
+import android.content.Intent
 import android.os.Build
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.view.WindowInsets
 import android.view.WindowManager
-import android.widget.Toast
 import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.ariqa.storyapp.ViewModelFactory
+import com.ariqa.storyapp.data.Result
 import com.ariqa.storyapp.databinding.ActivitySignUpBinding
+import com.ariqa.storyapp.view.login.LoginActivity
 import com.google.android.material.snackbar.Snackbar
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 class SignUpActivity : AppCompatActivity() {
@@ -40,9 +42,22 @@ class SignUpActivity : AppCompatActivity() {
             val password = binding.passwordEditText.text.toString()
 
             lifecycleScope.launch {
-                viewModel.signUp(name, email, password)
-                viewModel.responseMessage.collectLatest {
-                    showToast(it!!)
+                viewModel.postSignup(name, email, password).observe(this@SignUpActivity){result ->
+                    when(result){
+                        is Result.Loading -> {
+                            showLoading(true)
+                        }
+                        is Result.Error -> {
+                            showToast(result.error)
+                            Log.d("SignupActivity", "SignupActivity Error: ${result.error}")
+                        }
+                        is Result.Success -> {
+                            showToast(result.data.message)
+                            showLoading(false)
+                            startActivity(Intent(this@SignUpActivity, LoginActivity::class.java))
+                            finish()
+                        }
+                    }
                 }
             }
         }
@@ -60,9 +75,6 @@ class SignUpActivity : AppCompatActivity() {
         }
         supportActionBar?.hide()
 
-        viewModel.isLoading.observe(this@SignUpActivity){
-            showLoading(it)
-        }
     }
 
     private fun showLoading(isLoading: Boolean) {
@@ -71,7 +83,6 @@ class SignUpActivity : AppCompatActivity() {
 
     private fun showToast(message: String) {
         Snackbar.make(binding.root, message, Snackbar.LENGTH_SHORT).show()
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }
 
     private fun playAnimation() {

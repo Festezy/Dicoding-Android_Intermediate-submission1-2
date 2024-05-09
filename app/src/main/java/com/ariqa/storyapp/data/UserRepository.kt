@@ -7,6 +7,7 @@ import com.ariqa.storyapp.data.preference.UserPreference
 import com.ariqa.storyapp.data.response.ErrorResponse
 import com.ariqa.storyapp.data.response.FileUploadResponse
 import com.ariqa.storyapp.data.response.ListStoryItem
+import com.ariqa.storyapp.data.response.RegisterResponse
 import com.ariqa.storyapp.data.retrofit.ApiConfig
 import com.google.gson.Gson
 import kotlinx.coroutines.flow.Flow
@@ -31,6 +32,30 @@ class UserRepository private constructor(
 
     suspend fun logout() {
         userPreference.logout()
+    }
+
+    suspend fun signUp(
+        name: String, email: String, password: String
+    ): LiveData<Result<RegisterResponse>> {
+//        _isLoading.value = true
+        val result = MediatorLiveData<Result<RegisterResponse>>()
+        result.value = Result.Loading
+        try {
+            val apiService = ApiConfig.getApiService()
+            val successResponse = apiService.register(name, email, password)
+            result.value = Result.Success(successResponse)
+//            Log.d(SignUpViewModel.TAG, "SignUpViewModel successResponse: ${successResponse.message}")
+
+//            _responseMessage.value = successResponse.message
+        } catch (e: HttpException) {
+            val errorBody = e.response()?.errorBody()?.string()
+            val errorResponse = Gson().fromJson(errorBody, ErrorResponse::class.java)
+            result.value = Result.Error(errorResponse.message)
+//            Log.d(SignUpViewModel.TAG, "SignUpViewModel errorResponse: ${errorResponse.message}")
+//            _responseMessage.value = errorResponse.message
+        }
+//        _isLoading.value = false
+        return result
     }
 
     suspend fun getStory(): LiveData<Result<List<ListStoryItem>>> {

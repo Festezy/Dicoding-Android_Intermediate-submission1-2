@@ -43,19 +43,24 @@ class SignUpActivity : AppCompatActivity() {
             val password = binding.passwordEditText.text.toString()
 
             lifecycleScope.launch {
-                viewModel.postSignup(name, email, password).observe(this@SignUpActivity){result ->
-                    when(result){
+                viewModel.postSignup(name, email, password).observe(this@SignUpActivity) { result ->
+                    when (result) {
                         is Result.Loading -> {
 
                         }
+
                         is Result.Error -> {
                             showToast(result.error)
                             Log.d("SignupActivity", "SignupActivity Error: ${result.error}")
                         }
+
                         is Result.Success -> {
                             showToast(result.data.message)
                             showLoading(false)
-                            Log.d("SignupActivity", "SignupActivity success: ${result.data.message}")
+                            Log.d(
+                                "SignupActivity",
+                                "SignupActivity success: ${result.data.message}"
+                            )
                             startActivity(Intent(this@SignUpActivity, LoginActivity::class.java))
                             finish()
                         }

@@ -7,6 +7,7 @@ import com.ariqa.storyapp.data.preference.UserPreference
 import com.ariqa.storyapp.data.response.ErrorResponse
 import com.ariqa.storyapp.data.response.FileUploadResponse
 import com.ariqa.storyapp.data.response.ListStoryItem
+import com.ariqa.storyapp.data.response.LoginResponse
 import com.ariqa.storyapp.data.response.RegisterResponse
 import com.ariqa.storyapp.data.retrofit.ApiConfig
 import com.google.gson.Gson
@@ -32,6 +33,23 @@ class UserRepository private constructor(
 
     suspend fun logout() {
         userPreference.logout()
+    }
+
+    suspend fun login(
+        email: String, password: String
+    ): LiveData<Result<LoginResponse>> {
+        val result = MediatorLiveData<Result<LoginResponse>>()
+        result.value = Result.Loading
+        try {
+            val apiService = ApiConfig.getApiService()
+            val successResponse = apiService.login(email, password)
+            result.value = Result.Success(successResponse)
+        } catch (e: HttpException) {
+            val errorBody = e.response()?.errorBody()?.string()
+            val errorResponse = Gson().fromJson(errorBody, ErrorResponse::class.java)
+            result.value = Result.Error(errorResponse.message)
+        }
+        return result
     }
 
     suspend fun signUp(
@@ -84,7 +102,6 @@ class UserRepository private constructor(
         }
         return result
     }
-
 
     companion object {
         @Volatile

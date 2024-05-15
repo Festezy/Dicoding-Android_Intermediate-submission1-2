@@ -1,4 +1,4 @@
-package com.ariqa.storyapp.view.main
+package com.ariqa.storyapp.view.adapter
 
 import android.app.Activity
 import android.content.Intent
@@ -14,7 +14,7 @@ import com.ariqa.storyapp.data.response.ListStoryItem
 import com.ariqa.storyapp.databinding.ItemGetAllstoriesBinding
 import com.ariqa.storyapp.view.detail.DetailstoriesActivity
 
-class AllStoriesAdapter: ListAdapter<ListStoryItem, AllStoriesAdapter.MyViewHolder>(DIFF_CALLBACK) {
+class StoriesAdapter: ListAdapter<ListStoryItem, StoriesAdapter.MyViewHolder>(DIFF_CALLBACK) {
     class MyViewHolder(private val binding: ItemGetAllstoriesBinding): RecyclerView.ViewHolder(binding.root) {
         fun bind(listStories: ListStoryItem) {
             binding.apply {

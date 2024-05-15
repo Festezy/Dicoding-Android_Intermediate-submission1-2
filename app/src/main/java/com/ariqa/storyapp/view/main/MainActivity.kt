@@ -21,6 +21,7 @@ import com.ariqa.storyapp.ViewModelFactory
 import com.ariqa.storyapp.data.Result
 import com.ariqa.storyapp.data.response.ListStoryItem
 import com.ariqa.storyapp.databinding.ActivityMainBinding
+import com.ariqa.storyapp.view.adapter.StoriesAdapter
 import com.ariqa.storyapp.view.addmedia.AddStoryActivity
 import com.ariqa.storyapp.view.login.LoginActivity
 import kotlinx.coroutines.launch
@@ -54,18 +55,17 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        if (!allPermissionsGranted()) {
-            requestPermissionLauncher.launch(REQUIRED_PERMISSION)
-        }
-
         showLoading(true)
         viewModel.getSession().observe(this) { user ->
-            if (user.token.isNotEmpty() && user.token != "") {
-                setupView()
-                setupAction()
-            } else {
+            if (user.token.isEmpty() && user.token == "") {
                 startActivity(Intent(this, LoginActivity::class.java))
                 finish()
+            } else {
+                if (!allPermissionsGranted()) {
+                    requestPermissionLauncher.launch(REQUIRED_PERMISSION)
+                }
+                setupView()
+                setupAction()
             }
         }
     }
@@ -87,14 +87,16 @@ class MainActivity : AppCompatActivity() {
         }
 
         lifecycleScope.launch {
-            viewModel.getStory().observe(this@MainActivity){ result ->
-                when(result){
+            viewModel.getStory().observe(this@MainActivity) { result ->
+                when (result) {
                     is Result.Loading -> {
                         showLoading(true)
                     }
+
                     is Result.Error -> {
                         showToast(result.error)
                     }
+
                     is Result.Success -> {
                         Log.d("MainActivity", "Main: ${result.data}")
                         setAllStoriesList(result.data.toList())
@@ -106,7 +108,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setAllStoriesList(items: List<ListStoryItem>) {
-        val adapter = AllStoriesAdapter()
+        val adapter = StoriesAdapter()
         adapter.submitList(items)
         with(binding) {
             rvListStories.layoutManager = LinearLayoutManager(this@MainActivity)

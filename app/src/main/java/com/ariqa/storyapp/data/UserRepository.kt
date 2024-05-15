@@ -21,7 +21,7 @@ import retrofit2.HttpException
 class UserRepository private constructor(
     private val userPreference: UserPreference
 ) {
-    private val token = runBlocking { userPreference.getSession().first().token }
+//    private val token = runBlocking { userPreference.getSession().first().token }
 
     suspend fun saveSession(user: UserModel) {
         userPreference.saveSession(user)
@@ -73,6 +73,7 @@ class UserRepository private constructor(
         val result = MediatorLiveData<Result<List<ListStoryItem>>>()
         result.value = Result.Loading
         try {
+            val token = runBlocking { userPreference.getSession().first().token }
             val apiService = ApiConfig.getApiService()
             val successResponse = apiService.getStories("Bearer $token")
             result.value = Result.Success(successResponse.listStory)
@@ -92,6 +93,7 @@ class UserRepository private constructor(
         val result = MediatorLiveData<Result<FileUploadResponse>>()
         result.value = Result.Loading
         try {
+            val token = runBlocking { userPreference.getSession().first().token }
             val apiService = ApiConfig.getApiService()
             val successResponse = apiService.uploadImage("Bearer $token", imageFile, requestBody)
             result.value = Result.Success(successResponse)

@@ -5,7 +5,6 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.view.WindowInsets
 import android.view.WindowManager
@@ -15,13 +14,14 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
+import androidx.paging.PagingData
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.ariqa.storyapp.R
 import com.ariqa.storyapp.ViewModelFactory
-import com.ariqa.storyapp.data.Result
 import com.ariqa.storyapp.data.response.ListStoryItem
 import com.ariqa.storyapp.databinding.ActivityMainBinding
-import com.ariqa.storyapp.view.adapter.StoriesAdapter
+import com.ariqa.storyapp.view.adapter.LoadingStateAdapter
+import com.ariqa.storyapp.view.adapter.StoriesPagingAdapter
 import com.ariqa.storyapp.view.addmedia.AddStoryActivity
 import com.ariqa.storyapp.view.login.LoginActivity
 import com.ariqa.storyapp.view.maps.MapsActivity
@@ -58,7 +58,7 @@ class MainActivity : AppCompatActivity() {
 
         showLoading(true)
         viewModel.getSession().observe(this) { user ->
-            if (user.token.isEmpty() && user.token == "") {
+            if (!user.isLogin) {
                 startActivity(Intent(this, LoginActivity::class.java))
                 finish()
             } else {
@@ -91,37 +91,43 @@ class MainActivity : AppCompatActivity() {
         }
 
         lifecycleScope.launch {
-            viewModel.getStory().observe(this@MainActivity) { result ->
-                when (result) {
-                    is Result.Loading -> {
-                        showLoading(true)
-                    }
-
-                    is Result.Error -> {
-                        showToast(result.error)
-                    }
-
-                    is Result.Success -> {
-                        Log.d("MainActivity", "Main: ${result.data}")
-                        setAllStoriesList(result.data.toList())
-                        showLoading(false)
-                    }
-                }
-            }
+//            viewModel.getStory().observe(this@MainActivity) { result ->
+//                when (result) {
+//                    is Result.Loading -> {
+//                        showLoading(true)
+//                    }
+//
+//                    is Result.Error -> {
+//                        showToast(result.error)
+//                    }
+//
+//                    is Result.Success -> {
+//                        Log.d("MainActivity", "Main: ${result.data}")
+//                        setAllStoriesList(result.data.toList())
+//                        showLoading(false)
+//                    }
+//                }
+//            }
         }
     }
 
-    private fun setAllStoriesList(items: List<ListStoryItem>) {
-        val adapter = StoriesAdapter()
-        adapter.submitList(items)
+    private fun setAllStoriesList(items: PagingData<ListStoryItem>) {
+//        val adapter = StoriesAdapter()
+        val adapter = StoriesPagingAdapter()
         with(binding) {
             rvListStories.layoutManager = LinearLayoutManager(this@MainActivity)
-            rvListStories.adapter = adapter
+//            rvListStories.adapter = adapter
+            rvListStories.adapter = adapter.withLoadStateFooter(
+                footer = LoadingStateAdapter {
+                    adapter.retry()
+                }
+            )
+            adapter.submitData(lifecycle, items)
             rvListStories.setHasFixedSize(true)
         }
-        if (items.isNotEmpty()) {
-            showToast("Result ${items.size}")
-        }
+//        if (items.isNotEmpty()) {
+//            showToast("Result ${items.size}")
+//        }
     }
 
     private fun setupView() {
@@ -137,6 +143,10 @@ class MainActivity : AppCompatActivity() {
         supportActionBar?.hide()
 
         //observer
+        viewModel.stories.observe(this){
+            setAllStoriesList(it)
+        }
+
         viewModel.isLoading.observe(this@MainActivity) {
             showLoading(it)
         }

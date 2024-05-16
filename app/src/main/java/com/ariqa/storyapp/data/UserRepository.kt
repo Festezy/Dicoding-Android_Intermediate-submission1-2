@@ -2,6 +2,10 @@ package com.ariqa.storyapp.data
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
+import androidx.paging.liveData
 import com.ariqa.storyapp.data.preference.UserModel
 import com.ariqa.storyapp.data.preference.UserPreference
 import com.ariqa.storyapp.data.response.ErrorResponse
@@ -67,21 +71,32 @@ class UserRepository private constructor(
         return result
     }
 
-    suspend fun getStory(): LiveData<Result<List<ListStoryItem>>> {
-        val result = MediatorLiveData<Result<List<ListStoryItem>>>()
-        result.value = Result.Loading
-        try {
-//            val token = runBlocking { userPreference.getSession().first().token }
-//            val apiService = ApiConfig.getApiService()
-            val successResponse = apiService.getStories()
-            result.value = Result.Success(successResponse.listStory)
+//    suspend fun getStory(): LiveData<Result<List<ListStoryItem>>> {
+//        val result = MediatorLiveData<Result<List<ListStoryItem>>>()
+//        result.value = Result.Loading
+//        try {
+////            val token = runBlocking { userPreference.getSession().first().token }
+////            val apiService = ApiConfig.getApiService()
+//            val successResponse = apiService.getStories()
+//            result.value = Result.Success(successResponse.listStory)
+//
+//        } catch (e: HttpException) {
+//            val errorBody = e.response()?.errorBody()?.string()
+//            val errorResponse = Gson().fromJson(errorBody, ErrorResponse::class.java)
+//            result.value = Result.Error(errorResponse.message)
+//        }
+//        return result
+//    }
 
-        } catch (e: HttpException) {
-            val errorBody = e.response()?.errorBody()?.string()
-            val errorResponse = Gson().fromJson(errorBody, ErrorResponse::class.java)
-            result.value = Result.Error(errorResponse.message)
-        }
-        return result
+    fun getStories(): LiveData<PagingData<ListStoryItem>> {
+        return Pager(
+            config = PagingConfig(
+                pageSize = 5
+            ),
+            pagingSourceFactory = {
+                StoriesPagingSource(apiService)
+            }
+        ).liveData
     }
 
     suspend fun getStoryWithLocation(location: Int): LiveData<Result<List<ListStoryItem>>> {

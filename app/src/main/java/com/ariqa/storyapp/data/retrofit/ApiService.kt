@@ -23,12 +23,17 @@ interface ApiService {
         @Field("password") password: String
     ): RegisterResponse
 
+    //    @GET("stories")
+//    suspend fun getStories(): AllStoriesResponse
     @GET("stories")
-    suspend fun getStories(): AllStoriesResponse
+    suspend fun getStories(
+        @Query("page") page: Int = 1,
+        @Query("size") size: Int = 20
+    ): AllStoriesResponse
 
     @GET("stories")
     suspend fun getStoriesWithLocation(
-        @Query("location") location : Int = 1,
+        @Query("location") location: Int = 1,
     ): AllStoriesResponse
 
     @Multipart

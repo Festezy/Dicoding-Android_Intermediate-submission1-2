@@ -24,6 +24,7 @@ import com.ariqa.storyapp.databinding.ActivityMainBinding
 import com.ariqa.storyapp.view.adapter.StoriesAdapter
 import com.ariqa.storyapp.view.addmedia.AddStoryActivity
 import com.ariqa.storyapp.view.login.LoginActivity
+import com.ariqa.storyapp.view.maps.MapsActivity
 import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
@@ -73,11 +74,14 @@ class MainActivity : AppCompatActivity() {
     private fun setupAction() {
         binding.topAppBar.setOnMenuItemClickListener {
             when (it.itemId) {
+                R.id.MapIcon -> {
+                    startActivity(Intent(this@MainActivity, MapsActivity::class.java))
+                    true
+                }
                 R.id.logout -> {
                     viewModel.logout()
                     true
                 }
-
                 else -> false
             }
         }

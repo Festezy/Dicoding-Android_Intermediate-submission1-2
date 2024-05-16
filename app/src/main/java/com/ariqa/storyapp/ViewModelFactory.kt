@@ -8,6 +8,7 @@ import com.ariqa.storyapp.di.Injection
 import com.ariqa.storyapp.view.addmedia.AddStoryViewModel
 import com.ariqa.storyapp.view.login.LoginViewModel
 import com.ariqa.storyapp.view.main.MainViewModel
+import com.ariqa.storyapp.view.maps.MapsViewModel
 import com.ariqa.storyapp.view.signup.SignUpViewModel
 
 class ViewModelFactory(private val repository: UserRepository) : ViewModelProvider.NewInstanceFactory() {
@@ -26,6 +27,9 @@ class ViewModelFactory(private val repository: UserRepository) : ViewModelProvid
             }
             modelClass.isAssignableFrom(AddStoryViewModel::class.java) ->{
                 AddStoryViewModel(repository) as T
+            }
+            modelClass.isAssignableFrom(MapsViewModel::class.java) -> {
+                MapsViewModel(repository) as T
             }
             else -> throw IllegalArgumentException("Unknown ViewModel class: " + modelClass.name)
         }

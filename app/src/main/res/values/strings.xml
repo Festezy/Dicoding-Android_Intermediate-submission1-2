@@ -20,4 +20,11 @@
     <string name="upload">Unggah</string>
     <string name="empty_image_warning">Silakan masukkan berkas gambar terlebih dahulu.</string>
     <string name="password_tidak_boleh_kurang_dari_8_karakter">Password tidak boleh kurang dari 8 karakter</string>
+    <string name="title_activity_maps">MapsActivity</string>
+    <string name="go_to_map">Go to Map</string>
+
+    <string name="normal_type">Normal</string>
+    <string name="satellite_type">Satellite</string>
+    <string name="terrain_type">Terrain</string>
+    <string name="hybrid_type">Hybrid</string>
 </resources>

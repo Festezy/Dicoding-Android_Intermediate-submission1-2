@@ -86,6 +86,23 @@ class UserRepository private constructor(
         return result
     }
 
+    suspend fun getStoryWithLocation(location: Int): LiveData<Result<List<ListStoryItem>>> {
+        val result = MediatorLiveData<Result<List<ListStoryItem>>>()
+        result.value = Result.Loading
+        try {
+            val token = runBlocking { userPreference.getSession().first().token }
+            val apiService = ApiConfig.getApiService()
+            val successResponse = apiService.getStoriesWithLocation("Bearer $token", location)
+            result.value = Result.Success(successResponse.listStory)
+
+        } catch (e: HttpException){
+            val errorBody = e.response()?.errorBody()?.string()
+            val errorResponse = Gson().fromJson(errorBody, ErrorResponse::class.java)
+            result.value = Result.Error(errorResponse.message)
+        }
+        return result
+    }
+
     suspend fun uploadImage(
         imageFile: MultipartBody.Part,
         requestBody: RequestBody

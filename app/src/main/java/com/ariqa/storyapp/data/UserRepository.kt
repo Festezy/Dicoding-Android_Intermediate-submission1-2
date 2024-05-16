@@ -9,19 +9,17 @@ import com.ariqa.storyapp.data.response.FileUploadResponse
 import com.ariqa.storyapp.data.response.ListStoryItem
 import com.ariqa.storyapp.data.response.LoginResponse
 import com.ariqa.storyapp.data.response.RegisterResponse
-import com.ariqa.storyapp.data.retrofit.ApiConfig
+import com.ariqa.storyapp.data.retrofit.ApiService
 import com.google.gson.Gson
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.runBlocking
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.HttpException
 
 class UserRepository private constructor(
+    private val apiService: ApiService,
     private val userPreference: UserPreference
 ) {
-//    private val token = runBlocking { userPreference.getSession().first().token }
 
     suspend fun saveSession(user: UserModel) {
         userPreference.saveSession(user)
@@ -41,7 +39,7 @@ class UserRepository private constructor(
         val result = MediatorLiveData<Result<LoginResponse>>()
         result.value = Result.Loading
         try {
-            val apiService = ApiConfig.getApiService()
+//            val apiService = ApiConfig.getApiService()
             val successResponse = apiService.login(email, password)
             result.value = Result.Success(successResponse)
         } catch (e: HttpException) {
@@ -58,7 +56,7 @@ class UserRepository private constructor(
         val result = MediatorLiveData<Result<RegisterResponse>>()
         result.value = Result.Loading
         try {
-            val apiService = ApiConfig.getApiService()
+//            val apiService = ApiConfig.getApiService()
             val successResponse = apiService.register(name, email, password)
             result.value = Result.Success(successResponse)
         } catch (e: HttpException) {
@@ -73,9 +71,9 @@ class UserRepository private constructor(
         val result = MediatorLiveData<Result<List<ListStoryItem>>>()
         result.value = Result.Loading
         try {
-            val token = runBlocking { userPreference.getSession().first().token }
-            val apiService = ApiConfig.getApiService()
-            val successResponse = apiService.getStories("Bearer $token")
+//            val token = runBlocking { userPreference.getSession().first().token }
+//            val apiService = ApiConfig.getApiService()
+            val successResponse = apiService.getStories()
             result.value = Result.Success(successResponse.listStory)
 
         } catch (e: HttpException) {
@@ -90,9 +88,7 @@ class UserRepository private constructor(
         val result = MediatorLiveData<Result<List<ListStoryItem>>>()
         result.value = Result.Loading
         try {
-            val token = runBlocking { userPreference.getSession().first().token }
-            val apiService = ApiConfig.getApiService()
-            val successResponse = apiService.getStoriesWithLocation("Bearer $token", location)
+            val successResponse = apiService.getStoriesWithLocation(location)
             result.value = Result.Success(successResponse.listStory)
 
         } catch (e: HttpException){
@@ -110,9 +106,7 @@ class UserRepository private constructor(
         val result = MediatorLiveData<Result<FileUploadResponse>>()
         result.value = Result.Loading
         try {
-            val token = runBlocking { userPreference.getSession().first().token }
-            val apiService = ApiConfig.getApiService()
-            val successResponse = apiService.uploadImage("Bearer $token", imageFile, requestBody)
+            val successResponse = apiService.uploadImage(imageFile, requestBody)
             result.value = Result.Success(successResponse)
         } catch (e: HttpException) {
             val errorBody = e.response()?.errorBody()?.string()
@@ -126,10 +120,11 @@ class UserRepository private constructor(
         @Volatile
         private var instance: UserRepository? = null
         fun getInstance(
+            apiService: ApiService,
             userPreference: UserPreference
         ): UserRepository =
             instance ?: synchronized(this) {
-                instance ?: UserRepository(userPreference)
+                instance ?: UserRepository(apiService, userPreference)
             }.also { instance = it }
     }
 }

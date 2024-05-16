@@ -25,7 +25,9 @@ import com.ariqa.storyapp.view.adapter.StoriesPagingAdapter
 import com.ariqa.storyapp.view.addmedia.AddStoryActivity
 import com.ariqa.storyapp.view.login.LoginActivity
 import com.ariqa.storyapp.view.maps.MapsActivity
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
@@ -58,17 +60,18 @@ class MainActivity : AppCompatActivity() {
 
         showLoading(true)
         viewModel.getSession().observe(this) { user ->
+            runBlocking { delay(1000L) }
             if (!user.isLogin) {
                 startActivity(Intent(this, LoginActivity::class.java))
                 finish()
-            } else {
-                if (!allPermissionsGranted()) {
-                    requestPermissionLauncher.launch(REQUIRED_PERMISSION)
-                }
-                setupView()
-                setupAction()
             }
         }
+
+        if (!allPermissionsGranted()) {
+            requestPermissionLauncher.launch(REQUIRED_PERMISSION)
+        }
+        setupView()
+        setupAction()
     }
 
     private fun setupAction() {
@@ -143,18 +146,17 @@ class MainActivity : AppCompatActivity() {
         supportActionBar?.hide()
 
         //observer
-        viewModel.stories.observe(this){
-            setAllStoriesList(it)
+        lifecycleScope.launch {
+            viewModel.stories.observe(this@MainActivity){
+                setAllStoriesList(it)
+            }
         }
-
-        viewModel.isLoading.observe(this@MainActivity) {
-            showLoading(it)
-        }
+        showLoading(false)
     }
 
-    private fun showToast(message: String) {
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
-    }
+//    private fun showToast(message: String) {
+//        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+//    }
 
     private fun showLoading(isLoading: Boolean) {
         binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE

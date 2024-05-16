@@ -141,6 +141,7 @@ class AddStoryActivity : AppCompatActivity() {
 
                             is Result.Success -> {
                                 showToast(result.data.message)
+                                Log.d("GetStory", "uploadImage: ${result.data}")
                                 showLoading(false)
                                 val intent = Intent(this@AddStoryActivity, MainActivity::class.java)
                                 intent.flags =

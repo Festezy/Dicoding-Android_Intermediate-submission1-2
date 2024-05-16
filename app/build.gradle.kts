@@ -47,6 +47,7 @@ android {
 
 dependencies {
     implementation("com.google.android.gms:play-services-maps:18.2.0")
+    testImplementation("junit:junit:4.13.2")
     val cameraxVersion = "1.3.3"
 
     implementation("androidx.core:core-ktx:1.13.1")
@@ -75,6 +76,16 @@ dependencies {
     implementation("io.coil-kt:coil:2.6.0")
 
     implementation("androidx.paging:paging-runtime-ktx:3.3.0")
+//    implementation("androidx.room:room-ktx:2.4.0-rc01")
     implementation("androidx.room:room-ktx:2.6.1")
     ksp("androidx.room:room-compiler:2.6.1")
+
+    androidTestImplementation("androidx.arch.core:core-testing:2.2.0") //InstantTaskExecutorRule
+    androidTestImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3") //TestDispatcher
+    testImplementation("androidx.arch.core:core-testing:2.2.0") // InstantTaskExecutorRule
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3") //TestDispatcher
+
+    //mockito
+    testImplementation("org.mockito:mockito-core:5.6.0")
+    testImplementation("org.mockito:mockito-inline:5.2.0")
 }

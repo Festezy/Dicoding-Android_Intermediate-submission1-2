@@ -3,7 +3,6 @@ package com.ariqa.storyapp.view.maps
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.Canvas
-import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
@@ -11,12 +10,10 @@ import android.view.MenuItem
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
-import androidx.annotation.ColorInt
 import androidx.annotation.DrawableRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
-import androidx.core.graphics.drawable.DrawableCompat
 import androidx.lifecycle.lifecycleScope
 import com.ariqa.storyapp.R
 import com.ariqa.storyapp.ViewModelFactory
@@ -83,8 +80,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                     .snippet("Lat: ${latLng.latitude} Long: ${latLng.longitude}")
                     .icon(
                         vectorToBitmap(
-                            R.drawable.baseline_android_24,
-                            Color.parseColor("#3DDC84")
+                            R.drawable.baseline_android_24
                         )
                     )
             )
@@ -121,6 +117,11 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                                     .position(latLng)
                                     .title(data.name)
                                     .snippet(data.description)
+//                                    .icon(
+//                                        vectorToBitmap(
+//                                            R.drawable.dicoding_logo
+//                                        )
+//                                    )
                             )
                         }
                     }
@@ -155,7 +156,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
-    private fun vectorToBitmap(@DrawableRes id: Int, @ColorInt color: Int): BitmapDescriptor {
+    private fun vectorToBitmap(@DrawableRes id: Int): BitmapDescriptor {
         val vectorDrawable = ResourcesCompat.getDrawable(resources, id, null)
         if (vectorDrawable == null) {
             Log.e("BitmapHelper", "Resource not found")
@@ -168,7 +169,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         )
         val canvas = Canvas(bitmap)
         vectorDrawable.setBounds(0, 0, canvas.width, canvas.height)
-        DrawableCompat.setTint(vectorDrawable, color)
+//        DrawableCompat.setTint(vectorDrawable, color)
         vectorDrawable.draw(canvas)
         return BitmapDescriptorFactory.fromBitmap(bitmap)
     }

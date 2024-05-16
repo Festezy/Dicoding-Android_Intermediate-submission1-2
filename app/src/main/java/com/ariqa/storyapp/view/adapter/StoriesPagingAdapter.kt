@@ -19,12 +19,10 @@ class StoriesPagingAdapter
     class MyViewHolder(private val binding: ItemGetAllstoriesBinding) :
         RecyclerView.ViewHolder(binding.root) {
         fun bind(data: ListStoryItem) {
-//            binding.tvItemQuote.text = data.en
-//            binding.tvItemAuthor.text = data.author
             binding.apply {
                 photoUrl.load(data.photoUrl)
-                textName.text = "${data.name}"
-                textDescriptions.text = "${data.description}"
+                textName.text = data.name
+                textDescriptions.text = data.description
 
                 root.setOnClickListener {
                     Intent(root.context, DetailstoriesActivity::class.java).also {
@@ -60,7 +58,7 @@ class StoriesPagingAdapter
     }
 
     companion object {
-        private val DIFF_CALLBACK = object : DiffUtil.ItemCallback<ListStoryItem>() {
+        val DIFF_CALLBACK = object : DiffUtil.ItemCallback<ListStoryItem>() {
             override fun areItemsTheSame(oldItem: ListStoryItem, newItem: ListStoryItem): Boolean {
                 return oldItem == newItem
             }

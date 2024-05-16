@@ -80,8 +80,10 @@ class MainActivity : AppCompatActivity() {
                     true
                 }
                 R.id.logout -> {
+                    showLoading(true)
                     viewModel.logout()
                     startActivity(Intent(this@MainActivity, LoginActivity::class.java))
+                    showLoading(false)
                     true
                 }
                 else -> false

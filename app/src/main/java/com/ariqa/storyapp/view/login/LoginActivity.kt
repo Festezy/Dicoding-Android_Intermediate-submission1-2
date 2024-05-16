@@ -34,6 +34,10 @@ class LoginActivity : AppCompatActivity() {
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        viewModel.getSession().observe(this) {
+            if (it.isLogin) startActivity(Intent(this@LoginActivity, MainActivity::class.java))
+        }
+
         setupView()
         setupAction()
         playAnimation()

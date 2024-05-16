@@ -25,9 +25,7 @@ import com.ariqa.storyapp.view.adapter.StoriesPagingAdapter
 import com.ariqa.storyapp.view.addmedia.AddStoryActivity
 import com.ariqa.storyapp.view.login.LoginActivity
 import com.ariqa.storyapp.view.maps.MapsActivity
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
@@ -59,13 +57,13 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         showLoading(true)
-        viewModel.getSession().observe(this) { user ->
-            runBlocking { delay(1000L) }
-            if (!user.isLogin) {
-                startActivity(Intent(this, LoginActivity::class.java))
-                finish()
-            }
-        }
+//        viewModel.getSession().observe(this) { user ->
+//            runBlocking { delay(1000L) }
+//            if (!user.isLogin) {
+//                startActivity(Intent(this, LoginActivity::class.java))
+//                finish()
+//            }
+//        }
 
         if (!allPermissionsGranted()) {
             requestPermissionLauncher.launch(REQUIRED_PERMISSION)
@@ -83,6 +81,7 @@ class MainActivity : AppCompatActivity() {
                 }
                 R.id.logout -> {
                     viewModel.logout()
+                    startActivity(Intent(this@MainActivity, LoginActivity::class.java))
                     true
                 }
                 else -> false

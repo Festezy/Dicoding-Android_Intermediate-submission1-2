@@ -75,22 +75,18 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         mMap.addMarker(MarkerOptions().position(indonesia).title("Marker in Sydney"))
         mMap.moveCamera(CameraUpdateFactory.newLatLng(indonesia))
 
-//        val dicodingSpace = LatLng(-6.8957643, 107.6338462)
-//        mMap.addMarker(
-//            MarkerOptions()
-//                .position(dicodingSpace)
-//                .title("Dicoding Space")
-//                .snippet("Batik Kumeli No.50")
-//        )
-//        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(dicodingSpace, 15f))
-
         mMap.setOnMapLongClickListener { latLng ->
             mMap.addMarker(
                 MarkerOptions()
                     .position(latLng)
                     .title("New Marker")
                     .snippet("Lat: ${latLng.latitude} Long: ${latLng.longitude}")
-                    .icon(vectorToBitmap(R.drawable.baseline_android_24, Color.parseColor("#3DDC84")))
+                    .icon(
+                        vectorToBitmap(
+                            R.drawable.baseline_android_24,
+                            Color.parseColor("#3DDC84")
+                        )
+                    )
             )
         }
 
@@ -108,12 +104,13 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
     private fun addManyMarker() {
-            lifecycleScope.launch {
-            viewModel.getStoryWithLocation().observe(this@MapsActivity){ result ->
-                when(result){
+        lifecycleScope.launch {
+            viewModel.getStoryWithLocation().observe(this@MapsActivity) { result ->
+                when (result) {
                     is Result.Error -> {
                         Log.d("Maps Activity", "addManyMarker: ${result.error}")
                     }
+
                     is Result.Success -> {
                         Log.d("Maps Activity", "addManyMarker: ${result.data}")
                         //ketika sukses meng-observe data di Activity
@@ -127,24 +124,13 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                             )
                         }
                     }
+
                     else -> {
                         Toast.makeText(this@MapsActivity, "error", Toast.LENGTH_SHORT).show()
                     }
                 }
             }
         }
-
-//        val tourismPlace = listOf(
-//            TourismPlace("Floating Market Lembang", -6.8168954,107.6151046),
-//            TourismPlace("The Great Asia Africa", -6.8331128,107.6048483),
-//            TourismPlace("Rabbit Town", -6.8668408,107.608081),
-//            TourismPlace("Alun-Alun Kota Bandung", -6.9218518,107.6025294),
-//            TourismPlace("Orchid Forest Cikole", -6.780725, 107.637409),
-//        )
-//        tourismPlace.forEach { tourism ->
-//            val latLng = LatLng(tourism.latitude, tourism.longitude)
-//            mMap.addMarker(MarkerOptions().position(latLng).title(tourism.name))
-//        }
     }
 
 
@@ -156,6 +142,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 getMyLocation()
             }
         }
+
     private fun getMyLocation() {
         if (ContextCompat.checkSelfPermission(
                 this.applicationContext,
@@ -190,24 +177,29 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         menuInflater.inflate(R.menu.map_options, menu)
         return true
     }
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.normal_type -> {
                 mMap.mapType = GoogleMap.MAP_TYPE_NORMAL
                 true
             }
+
             R.id.satellite_type -> {
                 mMap.mapType = GoogleMap.MAP_TYPE_SATELLITE
                 true
             }
+
             R.id.terrain_type -> {
                 mMap.mapType = GoogleMap.MAP_TYPE_TERRAIN
                 true
             }
+
             R.id.hybrid_type -> {
                 mMap.mapType = GoogleMap.MAP_TYPE_HYBRID
                 true
             }
+
             else -> {
                 super.onOptionsItemSelected(item)
             }

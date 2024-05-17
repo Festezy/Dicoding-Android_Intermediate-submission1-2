@@ -6,6 +6,7 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.liveData
+import com.ariqa.storyapp.data.paging3.StoriesPagingSource
 import com.ariqa.storyapp.data.preference.UserModel
 import com.ariqa.storyapp.data.preference.UserPreference
 import com.ariqa.storyapp.data.response.ErrorResponse
@@ -13,9 +14,12 @@ import com.ariqa.storyapp.data.response.FileUploadResponse
 import com.ariqa.storyapp.data.response.ListStoryItem
 import com.ariqa.storyapp.data.response.LoginResponse
 import com.ariqa.storyapp.data.response.RegisterResponse
+import com.ariqa.storyapp.data.retrofit.ApiConfig
 import com.ariqa.storyapp.data.retrofit.ApiService
 import com.google.gson.Gson
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.runBlocking
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.HttpException
@@ -43,7 +47,6 @@ class UserRepository private constructor(
         val result = MediatorLiveData<Result<LoginResponse>>()
         result.value = Result.Loading
         try {
-//            val apiService = ApiConfig.getApiService()
             val successResponse = apiService.login(email, password)
             result.value = Result.Success(successResponse)
         } catch (e: HttpException) {
@@ -89,6 +92,10 @@ class UserRepository private constructor(
 //    }
 
     fun getStories(): LiveData<PagingData<ListStoryItem>> {
+        // token perlu dipanggil manual agar pertama kali login aplikasi berhasil utk getStories
+        // dan menghindari Bad HTTP authentication header format
+        val token = runBlocking { userPreference.getSession().first().token }
+        val apiService = ApiConfig.getApiService(token)
         return Pager(
             config = PagingConfig(
                 pageSize = 5
@@ -99,11 +106,11 @@ class UserRepository private constructor(
         ).liveData
     }
 
-    suspend fun getStoryWithLocation(location: Int): LiveData<Result<List<ListStoryItem>>> {
+    suspend fun getStoryWithLocation(): LiveData<Result<List<ListStoryItem>>> {
         val result = MediatorLiveData<Result<List<ListStoryItem>>>()
         result.value = Result.Loading
         try {
-            val successResponse = apiService.getStoriesWithLocation(location)
+            val successResponse = apiService.getStoriesWithLocation()
             result.value = Result.Success(successResponse.listStory)
 
         } catch (e: HttpException){

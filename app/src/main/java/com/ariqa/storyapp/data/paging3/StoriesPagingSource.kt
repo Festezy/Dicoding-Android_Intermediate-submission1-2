@@ -1,4 +1,4 @@
-package com.ariqa.storyapp.data
+package com.ariqa.storyapp.data.paging3
 
 import android.util.Log
 import androidx.paging.PagingSource
@@ -19,6 +19,7 @@ class StoriesPagingSource(private val apiService: ApiService): PagingSource<Int,
             val page = params.key ?: INITIAL_PAGE_INDEX
             val responseData = apiService.getStories()
             Log.d("PaggingSource", "load: $responseData")
+
 
             LoadResult.Page(
                 data = responseData.listStory,

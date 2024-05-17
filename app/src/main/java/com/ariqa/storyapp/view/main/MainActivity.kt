@@ -13,7 +13,6 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.lifecycleScope
 import androidx.paging.PagingData
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.ariqa.storyapp.R
@@ -25,7 +24,8 @@ import com.ariqa.storyapp.view.adapter.StoriesPagingAdapter
 import com.ariqa.storyapp.view.addmedia.AddStoryActivity
 import com.ariqa.storyapp.view.login.LoginActivity
 import com.ariqa.storyapp.view.maps.MapsActivity
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
@@ -57,17 +57,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         showLoading(true)
-//        viewModel.getSession().observe(this) { user ->
-//            runBlocking { delay(1000L) }
-//            if (!user.isLogin) {
-//                startActivity(Intent(this, LoginActivity::class.java))
-//                finish()
-//            }
-//        }
-
-        if (!allPermissionsGranted()) {
-            requestPermissionLauncher.launch(REQUIRED_PERMISSION)
-        }
+        runBlocking { delay(500L) }
         setupView()
         setupAction()
     }
@@ -93,48 +83,33 @@ class MainActivity : AppCompatActivity() {
         binding.addPhoto.setOnClickListener {
             startActivity(Intent(this@MainActivity, AddStoryActivity::class.java))
         }
-
-        lifecycleScope.launch {
-//            viewModel.getStory().observe(this@MainActivity) { result ->
-//                when (result) {
-//                    is Result.Loading -> {
-//                        showLoading(true)
-//                    }
-//
-//                    is Result.Error -> {
-//                        showToast(result.error)
-//                    }
-//
-//                    is Result.Success -> {
-//                        Log.d("MainActivity", "Main: ${result.data}")
-//                        setAllStoriesList(result.data.toList())
-//                        showLoading(false)
-//                    }
-//                }
-//            }
-        }
     }
 
     private fun setAllStoriesList(items: PagingData<ListStoryItem>) {
-//        val adapter = StoriesAdapter()
         val adapter = StoriesPagingAdapter()
         with(binding) {
             rvListStories.layoutManager = LinearLayoutManager(this@MainActivity)
-//            rvListStories.adapter = adapter
             rvListStories.adapter = adapter.withLoadStateFooter(
                 footer = LoadingStateAdapter {
                     adapter.retry()
                 }
             )
-            adapter.submitData(lifecycle, items)
             rvListStories.setHasFixedSize(true)
+            adapter.submitData(lifecycle, items)
         }
-//        if (items.isNotEmpty()) {
-//            showToast("Result ${items.size}")
-//        }
     }
 
     private fun setupView() {
+        viewModel.getSession().observe(this) { user ->
+            if (!user.isLogin) {
+                startActivity(Intent(this, LoginActivity::class.java))
+                finish()
+            }
+        }
+        if (!allPermissionsGranted()) {
+            requestPermissionLauncher.launch(REQUIRED_PERMISSION)
+        }
+
         @Suppress("DEPRECATION")
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             window.insetsController?.hide(WindowInsets.Type.statusBars())
@@ -147,10 +122,8 @@ class MainActivity : AppCompatActivity() {
         supportActionBar?.hide()
 
         //observer
-        lifecycleScope.launch {
-            viewModel.stories.observe(this@MainActivity){
-                setAllStoriesList(it)
-            }
+        viewModel.stories.observe(this@MainActivity) {
+            setAllStoriesList(it)
         }
         showLoading(false)
     }

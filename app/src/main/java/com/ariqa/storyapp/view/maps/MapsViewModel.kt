@@ -5,5 +5,5 @@ import com.ariqa.storyapp.data.UserRepository
 
 class MapsViewModel(private val repository: UserRepository): ViewModel() {
 
-    suspend fun getStoryWithLocation()= repository.getStoryWithLocation(1)
+    suspend fun getStoryWithLocation()= repository.getStoryWithLocation()
 }

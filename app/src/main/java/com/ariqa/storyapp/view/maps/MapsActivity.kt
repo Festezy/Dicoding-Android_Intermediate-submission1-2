@@ -105,6 +105,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 when (result) {
                     is Result.Error -> {
                         Log.d("Maps Activity", "addManyMarker: ${result.error}")
+                        showToast(result.error)
                     }
 
                     is Result.Success -> {
@@ -117,17 +118,12 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                                     .position(latLng)
                                     .title(data.name)
                                     .snippet(data.description)
-//                                    .icon(
-//                                        vectorToBitmap(
-//                                            R.drawable.dicoding_logo
-//                                        )
-//                                    )
                             )
                         }
                     }
 
                     else -> {
-                        Toast.makeText(this@MapsActivity, "error", Toast.LENGTH_SHORT).show()
+                        showToast("error")
                     }
                 }
             }
@@ -172,6 +168,10 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 //        DrawableCompat.setTint(vectorDrawable, color)
         vectorDrawable.draw(canvas)
         return BitmapDescriptorFactory.fromBitmap(bitmap)
+    }
+
+    private fun showToast(message: String) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {

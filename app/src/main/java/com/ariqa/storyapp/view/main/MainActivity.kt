@@ -102,6 +102,8 @@ class MainActivity : AppCompatActivity() {
     private fun setupView() {
         viewModel.getSession().observe(this) { user ->
             if (!user.isLogin) {
+                binding.topAppBar.visibility = View.GONE
+                showLoading(true)
                 startActivity(Intent(this, LoginActivity::class.java))
                 finish()
             }
@@ -119,7 +121,7 @@ class MainActivity : AppCompatActivity() {
                 WindowManager.LayoutParams.FLAG_FULLSCREEN
             )
         }
-        supportActionBar?.hide()
+
 
         //observer
         viewModel.stories.observe(this@MainActivity) {

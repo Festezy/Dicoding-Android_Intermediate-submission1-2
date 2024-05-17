@@ -9,7 +9,7 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="0dp">
+        android:layout_height="wrap_content">
 
         <ImageView
             android:id="@+id/previewImageView"
@@ -62,18 +62,19 @@
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/descriptionEditTextLayout"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            android:layout_width="match_parent"
-            android:layout_height="350dp"
+            android:layout_width="0dp"
+            android:layout_height="300dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/uploadButton"
             app:layout_constraintTop_toBottomOf="@+id/cameraButton">
 
-            <EditText
+            <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/textDescriptions"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:elegantTextHeight="true"
                 tools:text="@string/descriptions"
                 android:inputType="text" />
         </com.google.android.material.textfield.TextInputLayout>
@@ -90,7 +91,6 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/descriptionEditTextLayout"
             app:layout_constraintVertical_bias="1.0" />
 
         <ProgressBar
@@ -102,7 +102,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintTop_toTopOf="@id/cameraButton"
             tools:visibility="visible" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>

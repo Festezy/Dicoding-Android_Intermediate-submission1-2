@@ -63,7 +63,6 @@ class UserRepository private constructor(
         val result = MediatorLiveData<Result<RegisterResponse>>()
         result.value = Result.Loading
         try {
-//            val apiService = ApiConfig.getApiService()
             val successResponse = apiService.register(name, email, password)
             result.value = Result.Success(successResponse)
         } catch (e: HttpException) {
@@ -73,23 +72,6 @@ class UserRepository private constructor(
         }
         return result
     }
-
-//    suspend fun getStory(): LiveData<Result<List<ListStoryItem>>> {
-//        val result = MediatorLiveData<Result<List<ListStoryItem>>>()
-//        result.value = Result.Loading
-//        try {
-////            val token = runBlocking { userPreference.getSession().first().token }
-////            val apiService = ApiConfig.getApiService()
-//            val successResponse = apiService.getStories()
-//            result.value = Result.Success(successResponse.listStory)
-//
-//        } catch (e: HttpException) {
-//            val errorBody = e.response()?.errorBody()?.string()
-//            val errorResponse = Gson().fromJson(errorBody, ErrorResponse::class.java)
-//            result.value = Result.Error(errorResponse.message)
-//        }
-//        return result
-//    }
 
     fun getStories(): LiveData<PagingData<ListStoryItem>> {
         // token perlu dipanggil manual agar pertama kali login aplikasi berhasil utk getStories
@@ -106,12 +88,20 @@ class UserRepository private constructor(
         ).liveData
     }
 
-    suspend fun getStoryWithLocation(): LiveData<Result<List<ListStoryItem>>> {
+    suspend fun getStoryWithLocation(): LiveData<Result<List<ListStoryItem>>>  {
         val result = MediatorLiveData<Result<List<ListStoryItem>>>()
         result.value = Result.Loading
         try {
+            // token perlu dipanggil manual agar pertama kali login aplikasi berhasil utk getStories
+            // dan menghindari Bad HTTP authentication header format
+            val token = runBlocking { userPreference.getSession().first().token }
+            val apiService = ApiConfig.getApiService(token)
             val successResponse = apiService.getStoriesWithLocation()
-            result.value = Result.Success(successResponse.listStory)
+            if (successResponse.error == false){
+                result.value = Result.Success(successResponse.listStory)
+            } else {
+                result.value = Result.Error(successResponse.error.toString())
+            }
 
         } catch (e: HttpException){
             val errorBody = e.response()?.errorBody()?.string()
@@ -128,6 +118,8 @@ class UserRepository private constructor(
         val result = MediatorLiveData<Result<FileUploadResponse>>()
         result.value = Result.Loading
         try {
+            val token = runBlocking { userPreference.getSession().first().token }
+            val apiService = ApiConfig.getApiService(token)
             val successResponse = apiService.uploadImage(imageFile, requestBody)
             result.value = Result.Success(successResponse)
         } catch (e: HttpException) {

@@ -88,7 +88,8 @@ class AddStoryActivity : AppCompatActivity() {
             galleryButton.setOnClickListener {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                     if (!checkPermission(PERMISSION_READ_MEDIA_IMAGES)
-                        && !checkPermission(PERMISSION_READ_EXTERNAL_STORAGE)) {
+                        && !checkPermission(PERMISSION_READ_EXTERNAL_STORAGE)
+                    ) {
                         requestPermissionLauncher.launch(
                             arrayOf(PERMISSION_READ_MEDIA_IMAGES)
                         )
@@ -97,7 +98,8 @@ class AddStoryActivity : AppCompatActivity() {
                     }
                 } else {
                     if (!checkPermission(PERMISSION_READ_EXTERNAL_STORAGE)
-                        && !checkPermission(PERMISSION_READ_MEDIA_IMAGES)) {
+                        && !checkPermission(PERMISSION_READ_MEDIA_IMAGES)
+                    ) {
                         requestPermissionLauncher.launch(
                             arrayOf(PERMISSION_READ_EXTERNAL_STORAGE)
                         )
@@ -202,29 +204,35 @@ class AddStoryActivity : AppCompatActivity() {
             )
 
             lifecycleScope.launch {
-                viewModel.uploadImage(multipartBody, requestBody)
-                    .observe(this@AddStoryActivity) { result ->
-                        when (result) {
-                            is Result.Loading -> {
-                                showLoading(true)
-                            }
+                if (description != "") {
+                    viewModel.uploadImage(multipartBody, requestBody)
+                        .observe(this@AddStoryActivity) { result ->
+                            when (result) {
+                                is Result.Loading -> {
+                                    showLoading(true)
+                                }
 
-                            is Result.Error -> {
-                                showToast(result.error)
-                                Log.d("AddStoryActivity", "uploadImage error: ${result.error}")
-                            }
+                                is Result.Error -> {
+                                    showToast(result.error)
+                                    Log.d("AddStoryActivity", "uploadImage error: ${result.error}")
+                                    showLoading(false)
+                                }
 
-                            is Result.Success -> {
-                                showToast(result.data.message)
-                                Log.d("GetStory", "uploadImage: ${result.data}")
-                                showLoading(false)
-                                val intent = Intent(this@AddStoryActivity, MainActivity::class.java)
-                                intent.flags =
-                                    Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
-                                startActivity(intent)
+                                is Result.Success -> {
+                                    showToast(result.data.message)
+                                    Log.d("GetStory", "uploadImage: ${result.data}")
+                                    showLoading(false)
+                                    val intent =
+                                        Intent(this@AddStoryActivity, MainActivity::class.java)
+                                    intent.flags =
+                                        Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
+                                    startActivity(intent)
+                                }
                             }
                         }
-                    }
+                } else {
+                    showToast(getString(R.string.description_tidak_boleh_kosong))
+                }
             }
         } ?: showToast(getString(R.string.empty_image_warning))
     }

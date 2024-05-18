@@ -1,7 +1,7 @@
 package com.ariqa.storyapp.data.retrofit
 
 import com.ariqa.storyapp.data.response.AllStoriesResponse
-import com.ariqa.storyapp.data.response.FileUploadResponse
+import com.ariqa.storyapp.data.response.ErrorResponse
 import com.ariqa.storyapp.data.response.LoginResponse
 import com.ariqa.storyapp.data.response.RegisterResponse
 import okhttp3.MultipartBody
@@ -41,7 +41,7 @@ interface ApiService {
     suspend fun uploadImage(
         @Part file: MultipartBody.Part,
         @Part("description") description: RequestBody,
-    ): FileUploadResponse
+    ): ErrorResponse
 
     @FormUrlEncoded
     @POST("login")

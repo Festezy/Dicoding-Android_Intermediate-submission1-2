@@ -10,7 +10,6 @@ import com.ariqa.storyapp.data.paging3.StoriesPagingSource
 import com.ariqa.storyapp.data.preference.UserModel
 import com.ariqa.storyapp.data.preference.UserPreference
 import com.ariqa.storyapp.data.response.ErrorResponse
-import com.ariqa.storyapp.data.response.FileUploadResponse
 import com.ariqa.storyapp.data.response.ListStoryItem
 import com.ariqa.storyapp.data.response.LoginResponse
 import com.ariqa.storyapp.data.response.RegisterResponse
@@ -114,8 +113,8 @@ class UserRepository private constructor(
     suspend fun uploadImage(
         imageFile: MultipartBody.Part,
         requestBody: RequestBody
-    ): LiveData<Result<FileUploadResponse>> {
-        val result = MediatorLiveData<Result<FileUploadResponse>>()
+    ): LiveData<Result<ErrorResponse>> {
+        val result = MediatorLiveData<Result<ErrorResponse>>()
         result.value = Result.Loading
         try {
             val token = runBlocking { userPreference.getSession().first().token }

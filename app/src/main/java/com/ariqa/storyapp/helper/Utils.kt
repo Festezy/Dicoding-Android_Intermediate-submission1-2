@@ -5,7 +5,7 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Matrix
-import android.media.ExifInterface
+import androidx.exifinterface.media.ExifInterface
 import android.net.Uri
 import android.os.Build
 import android.os.Environment
@@ -72,10 +72,12 @@ fun uriToFile(imageUri: Uri, context: Context): File {
     return myFile
 }
 
-@RequiresApi(Build.VERSION_CODES.Q)
 fun File.reduceFileImage(): File {
     val file = this
-    val bitmap = BitmapFactory.decodeFile(file.path).getRotatedBitmap(file)
+    val bitmap =
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) BitmapFactory.decodeFile(file.path)
+            .getRotatedBitmap(file)
+        else BitmapFactory.decodeFile(file.path)
 
     var compressQuality = 100
     var streamLength: Int

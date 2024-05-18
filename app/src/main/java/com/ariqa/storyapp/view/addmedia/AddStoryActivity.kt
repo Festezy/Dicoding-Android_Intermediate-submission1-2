@@ -1,6 +1,8 @@
 package com.ariqa.storyapp.view.addmedia
 
+import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -12,6 +14,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import androidx.lifecycle.lifecycleScope
 import com.ariqa.storyapp.R
@@ -37,7 +40,39 @@ class AddStoryActivity : AppCompatActivity() {
     }
 
     private var currentImageUri: Uri? = null
-    private var token: String = ""
+    private var isCameraX: Boolean = true
+
+    private fun checkPermission(permission: String): Boolean {
+        return ContextCompat.checkSelfPermission(
+            this,
+            permission
+        ) == PackageManager.PERMISSION_GRANTED
+    }
+
+    private val requestPermissionLauncher =
+        registerForActivityResult(
+            ActivityResultContracts.RequestMultiplePermissions()
+        ) { permissions ->
+            when {
+                permissions[PERMISSION_READ_EXTERNAL_STORAGE] ?: false -> {
+                    // Access Media for Android 12 LOWER
+                    startGallery()
+                }
+
+                permissions[PERMISSION_READ_MEDIA_IMAGES] ?: false -> {
+                    // Access Media for Android 13 HiGHER
+                    startGallery()
+                }
+
+                permissions[PERMISSION_CAMERA] ?: false -> {
+                    if (isCameraX) startCameraX()
+                    if (!isCameraX) startCamera()
+                }
+
+                else -> {
+                }
+            }
+        }
 
     @RequiresApi(Build.VERSION_CODES.Q)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -45,19 +80,60 @@ class AddStoryActivity : AppCompatActivity() {
         binding = ActivityAddStoryBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        viewModel.getSession().observe(this@AddStoryActivity) { user ->
-            token = user.token
-            setupAction()
-        }
+        setupAction()
     }
 
-    @RequiresApi(Build.VERSION_CODES.Q)
     private fun setupAction() {
-        binding.galleryButton.setOnClickListener { startGallery() }
-        binding.cameraButton.setOnClickListener { startCamera() }
-        binding.cameraXButton.setOnClickListener { startCameraX() }
-        binding.uploadButton.setOnClickListener {
-            uploadImage()
+        binding.apply {
+            galleryButton.setOnClickListener {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    if (!checkPermission(PERMISSION_READ_MEDIA_IMAGES)
+                        && !checkPermission(PERMISSION_READ_EXTERNAL_STORAGE)) {
+                        requestPermissionLauncher.launch(
+                            arrayOf(PERMISSION_READ_MEDIA_IMAGES)
+                        )
+                    } else {
+                        startGallery()
+                    }
+                } else {
+                    if (!checkPermission(PERMISSION_READ_EXTERNAL_STORAGE)
+                        && !checkPermission(PERMISSION_READ_MEDIA_IMAGES)) {
+                        requestPermissionLauncher.launch(
+                            arrayOf(PERMISSION_READ_EXTERNAL_STORAGE)
+                        )
+
+                    } else {
+                        startGallery()
+                    }
+                }
+
+
+            }
+            cameraButton.setOnClickListener {
+                isCameraX = false
+                if (!checkPermission(PERMISSION_CAMERA)) {
+                    requestPermissionLauncher.launch(
+                        arrayOf(PERMISSION_CAMERA)
+                    )
+                } else {
+
+                    startCamera()
+                }
+
+            }
+            cameraXButton.setOnClickListener {
+                isCameraX
+                if (!checkPermission(PERMISSION_CAMERA)) {
+                    requestPermissionLauncher.launch(
+                        arrayOf(PERMISSION_CAMERA)
+                    )
+                } else {
+                    startCameraX()
+
+                }
+
+            }
+            uploadButton.setOnClickListener { uploadImage() }
         }
     }
 
@@ -110,7 +186,6 @@ class AddStoryActivity : AppCompatActivity() {
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.Q)
     private fun uploadImage() {
         showLoading(true)
         currentImageUri?.let { uri ->
@@ -162,5 +237,11 @@ class AddStoryActivity : AppCompatActivity() {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }
 
+    companion object {
+        private const val PERMISSION_CAMERA = Manifest.permission.CAMERA
+        private const val PERMISSION_READ_EXTERNAL_STORAGE =
+            Manifest.permission.READ_EXTERNAL_STORAGE
+        private const val PERMISSION_READ_MEDIA_IMAGES = Manifest.permission.READ_MEDIA_IMAGES
+    }
 
 }

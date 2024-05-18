@@ -8,7 +8,4 @@ class SignUpViewModel (private val repository: UserRepository) : ViewModel() {
         name: String, email: String,  password: String
     ) = repository.signUp(name, email, password)
 
-    companion object {
-        private const val TAG = "SignupViewModel"
-    }
 }

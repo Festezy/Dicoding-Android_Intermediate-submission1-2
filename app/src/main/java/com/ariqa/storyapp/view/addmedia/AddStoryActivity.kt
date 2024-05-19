@@ -6,6 +6,7 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
 import android.util.Log
 import android.view.View
 import android.widget.Toast
@@ -26,6 +27,7 @@ import com.ariqa.storyapp.helper.reduceFileImage
 import com.ariqa.storyapp.helper.uriToFile
 import com.ariqa.storyapp.view.addmedia.CameraActivity.Companion.CAMERAX_RESULT
 import com.ariqa.storyapp.view.main.MainActivity
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.launch
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
@@ -80,45 +82,32 @@ class AddStoryActivity : AppCompatActivity() {
         binding = ActivityAddStoryBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        setupAction()
+        askPermissionOnStart()
+        setupButtonAction()
     }
 
-    private fun setupAction() {
+    private fun setupButtonAction() {
         binding.apply {
             galleryButton.setOnClickListener {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    if (!checkPermission(PERMISSION_READ_MEDIA_IMAGES)
-                        && !checkPermission(PERMISSION_READ_EXTERNAL_STORAGE)
-                    ) {
-                        requestPermissionLauncher.launch(
-                            arrayOf(PERMISSION_READ_MEDIA_IMAGES)
-                        )
+                    if (!checkPermission(PERMISSION_READ_MEDIA_IMAGES)) {
+                        showDialog(resources.getString(R.string.declined_galery_permission))
                     } else {
                         startGallery()
                     }
                 } else {
-                    if (!checkPermission(PERMISSION_READ_EXTERNAL_STORAGE)
-                        && !checkPermission(PERMISSION_READ_MEDIA_IMAGES)
-                    ) {
-                        requestPermissionLauncher.launch(
-                            arrayOf(PERMISSION_READ_EXTERNAL_STORAGE)
-                        )
-
+                    if (!checkPermission(PERMISSION_READ_EXTERNAL_STORAGE)) {
+                        showDialog(resources.getString(R.string.declined_galery_permission))
                     } else {
                         startGallery()
                     }
                 }
-
-
             }
             cameraButton.setOnClickListener {
                 isCameraX = false
                 if (!checkPermission(PERMISSION_CAMERA)) {
-                    requestPermissionLauncher.launch(
-                        arrayOf(PERMISSION_CAMERA)
-                    )
+                    showDialog(resources.getString(R.string.declined_camera_permission))
                 } else {
-
                     startCamera()
                 }
 
@@ -126,14 +115,11 @@ class AddStoryActivity : AppCompatActivity() {
             cameraXButton.setOnClickListener {
                 isCameraX
                 if (!checkPermission(PERMISSION_CAMERA)) {
-                    requestPermissionLauncher.launch(
-                        arrayOf(PERMISSION_CAMERA)
-                    )
+                    showDialog(resources.getString(R.string.declined_camera_permission))
                 } else {
                     startCameraX()
 
                 }
-
             }
             uploadButton.setOnClickListener { uploadImage() }
         }
@@ -237,12 +223,53 @@ class AddStoryActivity : AppCompatActivity() {
         } ?: showToast(getString(R.string.empty_image_warning))
     }
 
+    private fun askPermissionOnStart() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (!checkPermission(PERMISSION_CAMERA) &&
+                !checkPermission(PERMISSION_READ_MEDIA_IMAGES)
+            ) {
+                requestPermissionLauncher.launch(
+                    arrayOf(
+                        PERMISSION_CAMERA,
+                        PERMISSION_READ_MEDIA_IMAGES
+                    )
+                )
+            }
+        }
+        if (!checkPermission(PERMISSION_CAMERA)
+            && !checkPermission(PERMISSION_READ_EXTERNAL_STORAGE)
+        ) {
+            requestPermissionLauncher.launch(
+                arrayOf(
+                    PERMISSION_CAMERA, PERMISSION_READ_EXTERNAL_STORAGE
+                )
+            )
+        }
+    }
+
     private fun showLoading(isLoading: Boolean) {
         binding.progressIndicator.visibility = if (isLoading) View.VISIBLE else View.GONE
     }
 
     private fun showToast(message: String) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+    }
+
+    private fun showDialog(message: String) {
+        MaterialAlertDialogBuilder(this, R.style.ThemeOverlay_App_MaterialAlertDialog)
+            .setTitle(resources.getString(R.string.titleDialog))
+            .setMessage(message)
+            .setNeutralButton(resources.getString(R.string.dismissDialog)) { dialog, _ ->
+                dialog.dismiss()
+            }
+            .setPositiveButton(resources.getString(R.string.acceptDialog)) { _, _ ->
+                // Respond to positive button press
+                val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                    data = Uri.fromParts("package", packageName, null)
+                }
+                startActivity(intent)
+            }
+            .show()
     }
 
     companion object {

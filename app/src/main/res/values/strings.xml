@@ -30,4 +30,9 @@
 
     <string name="retry">Coba lagi</string>
     <string name="description_tidak_boleh_kosong">description tidak boleh kosong</string>
+    <string name="titleDialog">Izin dibutuhkan</string>
+    <string name="acceptDialog">Berikan Izin</string>
+    <string name="dismissDialog">Tidak</string>
+    <string name="declined_camera_permission">Sepertinya anda menolak izin akses kamera, Izin akses kamera dibutuhkan untuk melanjutkan</string>
+    <string name="declined_galery_permission">Sepertinya anda menolak izin akses Galery, Izin akses Galery dibutuhkan untuk melanjutkan</string>
 </resources>

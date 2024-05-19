@@ -27,6 +27,7 @@ class UserRepository private constructor(
     private val apiService: ApiService,
     private val userPreference: UserPreference
 ) {
+    private val token = runBlocking { userPreference.getSession().first().token }
 
     suspend fun saveSession(user: UserModel) {
         userPreference.saveSession(user)
@@ -75,8 +76,8 @@ class UserRepository private constructor(
     fun getStories(): LiveData<PagingData<ListStoryItem>> {
         // token perlu dipanggil manual agar pertama kali login aplikasi berhasil utk getStories
         // dan menghindari Bad HTTP authentication header format
-        val token = runBlocking { userPreference.getSession().first().token }
-        val apiService = ApiConfig.getApiService(token)
+        val getToken = token
+        val apiService = ApiConfig.getApiService(getToken)
         return Pager(
             config = PagingConfig(
                 pageSize = 5
@@ -93,8 +94,8 @@ class UserRepository private constructor(
         try {
             // token perlu dipanggil manual agar pertama kali login aplikasi berhasil utk getStories
             // dan menghindari Bad HTTP authentication header format
-            val token = runBlocking { userPreference.getSession().first().token }
-            val apiService = ApiConfig.getApiService(token)
+            val getToken = token
+            val apiService = ApiConfig.getApiService(getToken)
             val successResponse = apiService.getStoriesWithLocation()
             if (successResponse.error == false){
                 result.value = Result.Success(successResponse.listStory)
@@ -117,8 +118,8 @@ class UserRepository private constructor(
         val result = MediatorLiveData<Result<ErrorResponse>>()
         result.value = Result.Loading
         try {
-            val token = runBlocking { userPreference.getSession().first().token }
-            val apiService = ApiConfig.getApiService(token)
+            val getToken = token
+            val apiService = ApiConfig.getApiService(getToken)
             val successResponse = apiService.uploadImage(imageFile, requestBody)
             result.value = Result.Success(successResponse)
         } catch (e: HttpException) {

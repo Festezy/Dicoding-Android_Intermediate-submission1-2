@@ -16,9 +16,13 @@ import com.ariqa.storyapp.data.response.RegisterResponse
 import com.ariqa.storyapp.data.retrofit.ApiConfig
 import com.ariqa.storyapp.data.retrofit.ApiService
 import com.google.gson.Gson
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.HttpException
@@ -114,19 +118,21 @@ class UserRepository private constructor(
     suspend fun uploadImage(
         imageFile: MultipartBody.Part,
         requestBody: RequestBody
-    ): LiveData<Result<ErrorResponse>> {
-        val result = MediatorLiveData<Result<ErrorResponse>>()
-        result.value = Result.Loading
-        try {
-            val getToken = token
-            val apiService = ApiConfig.getApiService(getToken)
-            val successResponse = apiService.uploadImage(imageFile, requestBody)
-            result.value = Result.Success(successResponse)
-        } catch (e: HttpException) {
-            val errorBody = e.response()?.errorBody()?.string()
-            val errorResponse = Gson().fromJson(errorBody, ErrorResponse::class.java)
-            result.value = Result.Error(errorResponse.toString())
+    ): StateFlow<Result<ErrorResponse>> {
+        val result = MutableStateFlow<Result<ErrorResponse>>(Result.Loading)
+        withContext(Dispatchers.IO){
+            try {
+                val getToken = token
+                val apiService = ApiConfig.getApiService(getToken)
+                val successResponse = apiService.uploadImage(imageFile, requestBody)
+                result.value = Result.Success(successResponse)
+            } catch (e: HttpException) {
+                val errorBody = e.response()?.errorBody()?.string()
+                val errorResponse = Gson().fromJson(errorBody, ErrorResponse::class.java)
+                result.value = Result.Error(errorResponse.toString())
+            }
         }
+
         return result
     }
 

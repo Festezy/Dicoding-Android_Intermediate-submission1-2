@@ -28,6 +28,7 @@ import com.ariqa.storyapp.helper.uriToFile
 import com.ariqa.storyapp.view.addmedia.CameraActivity.Companion.CAMERAX_RESULT
 import com.ariqa.storyapp.view.main.MainActivity
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
@@ -189,36 +190,36 @@ class AddStoryActivity : AppCompatActivity() {
                 requestImageFile
             )
 
-            lifecycleScope.launch {
-                if (description != "") {
-                    viewModel.uploadImage(multipartBody, requestBody)
-                        .observe(this@AddStoryActivity) { result ->
-                            when (result) {
-                                is Result.Loading -> {
-                                    showLoading(true)
-                                }
+            viewModel.uploadImage(multipartBody, requestBody)
+            if (description != "") {
+                lifecycleScope.launch {
+                    viewModel.uploadResult.collectLatest { result ->
+                        when (result){
+                            is Result.Loading -> {
+                                showLoading(true)
+                            }
 
-                                is Result.Error -> {
-                                    showToast(result.error)
-                                    Log.d("AddStoryActivity", "uploadImage error: ${result.error}")
-                                    showLoading(false)
-                                }
+                            is Result.Error -> {
+                                showToast(result.error)
+                                Log.d("AddStoryActivity", "uploadImage error: ${result.error}")
+                                showLoading(false)
+                            }
 
-                                is Result.Success -> {
-                                    showToast(result.data.message)
-                                    Log.d("GetStory", "uploadImage: ${result.data}")
-                                    showLoading(false)
-                                    val intent =
-                                        Intent(this@AddStoryActivity, MainActivity::class.java)
-                                    intent.flags =
-                                        Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
-                                    startActivity(intent)
-                                }
+                            is Result.Success -> {
+                                showToast(result.data.message)
+                                Log.d("GetStory", "uploadImage: ${result.data}")
+                                showLoading(false)
+                                val intent =
+                                    Intent(this@AddStoryActivity, MainActivity::class.java)
+                                intent.flags =
+                                    Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
+                                startActivity(intent)
                             }
                         }
-                } else {
-                    showToast(getString(R.string.description_tidak_boleh_kosong))
+                    }
                 }
+            } else {
+                showToast(getString(R.string.description_tidak_boleh_kosong))
             }
         } ?: showToast(getString(R.string.empty_image_warning))
     }

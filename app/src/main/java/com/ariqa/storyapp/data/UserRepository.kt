@@ -31,7 +31,6 @@ class UserRepository private constructor(
     private val apiService: ApiService,
     private val userPreference: UserPreference
 ) {
-    private val token = runBlocking { userPreference.getSession().first().token }
 
     suspend fun saveSession(user: UserModel) {
         userPreference.saveSession(user)
@@ -80,7 +79,7 @@ class UserRepository private constructor(
     fun getStories(): LiveData<PagingData<ListStoryItem>> {
         // token perlu dipanggil manual agar pertama kali login aplikasi berhasil utk getStories
         // dan menghindari Bad HTTP authentication header format
-        val getToken = token
+        val getToken = runBlocking { userPreference.getSession().first().token }
         val apiService = ApiConfig.getApiService(getToken)
         return Pager(
             config = PagingConfig(
@@ -98,7 +97,7 @@ class UserRepository private constructor(
         try {
             // token perlu dipanggil manual agar pertama kali login aplikasi berhasil utk getStories
             // dan menghindari Bad HTTP authentication header format
-            val getToken = token
+            val getToken = runBlocking { userPreference.getSession().first().token }
             val apiService = ApiConfig.getApiService(getToken)
             val successResponse = apiService.getStoriesWithLocation()
             if (successResponse.error == false){
@@ -122,7 +121,7 @@ class UserRepository private constructor(
         val result = MutableStateFlow<Result<ErrorResponse>>(Result.Loading)
         withContext(Dispatchers.IO){
             try {
-                val getToken = token
+                val getToken = runBlocking { userPreference.getSession().first().token }
                 val apiService = ApiConfig.getApiService(getToken)
                 val successResponse = apiService.uploadImage(imageFile, requestBody)
                 result.value = Result.Success(successResponse)

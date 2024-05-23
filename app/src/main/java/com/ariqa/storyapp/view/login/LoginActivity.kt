@@ -14,12 +14,12 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.ariqa.storyapp.ViewModelFactory
-import com.ariqa.storyapp.data.Result
 import com.ariqa.storyapp.data.preference.UserModel
 import com.ariqa.storyapp.databinding.ActivityLoginBinding
 import com.ariqa.storyapp.view.main.MainActivity
 import com.ariqa.storyapp.view.signup.SignUpActivity
 import com.google.android.material.snackbar.Snackbar
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 class LoginActivity : AppCompatActivity() {
@@ -49,20 +49,21 @@ class LoginActivity : AppCompatActivity() {
             val email = binding.emailEditText.text.toString()
             val password = binding.passwordEditText.text.toString()
 
+            viewModel.login(email, password)
             lifecycleScope.launch {
-                viewModel.login(email, password).observe(this@LoginActivity) { result ->
+                viewModel.uploadResult.collectLatest { result ->
                     when (result) {
-                        is Result.Loading -> {
+                        is com.ariqa.storyapp.data.Result.Loading -> {
                             showLoading(true)
                         }
 
-                        is Result.Error -> {
+                        is com.ariqa.storyapp.data.Result.Error -> {
                             showToast(result.error)
                             Log.d("LoginActivity", "LoginActivity error: ${result.error}")
                             showLoading(false)
                         }
 
-                        is Result.Success -> {
+                        is com.ariqa.storyapp.data.Result.Success -> {
                             showToast(result.data.message.toString())
                             val result = result.data.loginResult!!
                             val email = result.name
@@ -102,9 +103,9 @@ class LoginActivity : AppCompatActivity() {
         }
         supportActionBar?.hide()
 
-        viewModel.isLoading.observe(this@LoginActivity) {
-            showLoading(it)
-        }
+//        viewModel.isLoading.observe(this@LoginActivity) {
+//            showLoading(it)
+//        }
     }
 
     private fun playAnimation() {

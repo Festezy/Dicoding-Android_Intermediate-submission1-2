@@ -46,16 +46,17 @@ class UserRepository private constructor(
 
     suspend fun login(
         email: String, password: String
-    ): LiveData<Result<LoginResponse>> {
-        val result = MediatorLiveData<Result<LoginResponse>>()
-        result.value = Result.Loading
-        try {
-            val successResponse = apiService.login(email, password)
-            result.value = Result.Success(successResponse)
-        } catch (e: HttpException) {
-            val errorBody = e.response()?.errorBody()?.string()
-            val errorResponse = Gson().fromJson(errorBody, ErrorResponse::class.java)
-            result.value = Result.Error(errorResponse.message)
+    ): StateFlow<Result<LoginResponse>> {
+        val result = MutableStateFlow<Result<LoginResponse>>(Result.Loading)
+        withContext(Dispatchers.IO) {
+            try {
+                val successResponse = apiService.login(email, password)
+                result.value = Result.Success(successResponse)
+            } catch (e: HttpException) {
+                val errorBody = e.response()?.errorBody()?.string()
+                val errorResponse = Gson().fromJson(errorBody, ErrorResponse::class.java)
+                result.value = Result.Error(errorResponse.message)
+            }
         }
         return result
     }

@@ -51,7 +51,7 @@ class LoginActivity : AppCompatActivity() {
 
             viewModel.login(email, password)
             lifecycleScope.launch {
-                viewModel.uploadResult.collectLatest { result ->
+                viewModel.postResult.collectLatest { result ->
                     when (result) {
                         is com.ariqa.storyapp.data.Result.Loading -> {
                             showLoading(true)

@@ -102,10 +102,6 @@ class LoginActivity : AppCompatActivity() {
             )
         }
         supportActionBar?.hide()
-
-//        viewModel.isLoading.observe(this@LoginActivity) {
-//            showLoading(it)
-//        }
     }
 
     private fun playAnimation() {

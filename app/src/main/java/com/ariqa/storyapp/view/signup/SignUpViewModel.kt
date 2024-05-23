@@ -10,15 +10,15 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 class SignUpViewModel (private val repository: UserRepository) : ViewModel() {
-    private val _uploadResult = MutableStateFlow<Result<RegisterResponse>>(Result.Loading)
-    val uploadResult: StateFlow<Result<RegisterResponse>> get() = _uploadResult
+    private val _postResult = MutableStateFlow<Result<RegisterResponse>>(Result.Loading)
+    val postResult: StateFlow<Result<RegisterResponse>> get() = _postResult
 
     fun postSignup(
         name: String, email: String,  password: String
     ){
         viewModelScope.launch {
             val result = repository.signUp(name, email, password)
-            result.collect { _uploadResult.value = it }
+            result.collect { _postResult.value = it }
         }
     }
 

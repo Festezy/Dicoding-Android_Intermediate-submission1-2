@@ -45,7 +45,7 @@ class SignUpActivity : AppCompatActivity() {
 
             viewModel.postSignup(name, email, password)
             lifecycleScope.launch {
-                viewModel.uploadResult.collectLatest { result ->
+                viewModel.postResult.collectLatest { result ->
                     when (result) {
                         is  Result.Loading -> {
 

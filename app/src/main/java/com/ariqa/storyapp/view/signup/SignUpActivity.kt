@@ -17,6 +17,7 @@ import com.ariqa.storyapp.data.Result
 import com.ariqa.storyapp.databinding.ActivitySignUpBinding
 import com.ariqa.storyapp.view.login.LoginActivity
 import com.google.android.material.snackbar.Snackbar
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 class SignUpActivity : AppCompatActivity() {
@@ -42,10 +43,11 @@ class SignUpActivity : AppCompatActivity() {
             val email = binding.emailEditText.text.toString()
             val password = binding.passwordEditText.text.toString()
 
+            viewModel.postSignup(name, email, password)
             lifecycleScope.launch {
-                viewModel.postSignup(name, email, password).observe(this@SignUpActivity) { result ->
+                viewModel.uploadResult.collectLatest { result ->
                     when (result) {
-                        is Result.Loading -> {
+                        is  Result.Loading -> {
 
                         }
 
@@ -100,10 +102,13 @@ class SignUpActivity : AppCompatActivity() {
         }.start()
 
         //button
-        val daftar = ObjectAnimator.ofFloat(binding.signupButton, View.ALPHA, 1f).setDuration(100)
+        val daftar =
+            ObjectAnimator.ofFloat(binding.signupButton, View.ALPHA, 1f).setDuration(100)
         //textView
-        val title = ObjectAnimator.ofFloat(binding.titleTextView, View.ALPHA, 1f).setDuration(100)
-        val nameText = ObjectAnimator.ofFloat(binding.nameTextView, View.ALPHA, 1f).setDuration(100)
+        val title =
+            ObjectAnimator.ofFloat(binding.titleTextView, View.ALPHA, 1f).setDuration(100)
+        val nameText =
+            ObjectAnimator.ofFloat(binding.nameTextView, View.ALPHA, 1f).setDuration(100)
         val emailText =
             ObjectAnimator.ofFloat(binding.emailTextView, View.ALPHA, 1f).setDuration(100)
         val passwordText =
@@ -114,7 +119,8 @@ class SignUpActivity : AppCompatActivity() {
         val emailEditText =
             ObjectAnimator.ofFloat(binding.emailEditTextLayout, View.ALPHA, 1f).setDuration(100)
         val passwordEditText =
-            ObjectAnimator.ofFloat(binding.passwordEditTextLayout, View.ALPHA, 1f).setDuration(100)
+            ObjectAnimator.ofFloat(binding.passwordEditTextLayout, View.ALPHA, 1f)
+                .setDuration(100)
 
         val together = AnimatorSet().apply {
             playTogether(daftar)

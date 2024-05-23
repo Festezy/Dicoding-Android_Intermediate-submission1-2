@@ -63,16 +63,17 @@ class UserRepository private constructor(
 
     suspend fun signUp(
         name: String, email: String, password: String
-    ): LiveData<Result<RegisterResponse>> {
-        val result = MediatorLiveData<Result<RegisterResponse>>()
-        result.value = Result.Loading
-        try {
-            val successResponse = apiService.register(name, email, password)
-            result.value = Result.Success(successResponse)
-        } catch (e: HttpException) {
-            val errorBody = e.response()?.errorBody()?.string()
-            val errorResponse = Gson().fromJson(errorBody, ErrorResponse::class.java)
-            result.value = Result.Error(errorResponse.message)
+    ): StateFlow<Result<RegisterResponse>> {
+        val result = MutableStateFlow<Result<RegisterResponse>>(Result.Loading)
+        withContext(Dispatchers.IO) {
+            try {
+                val successResponse = apiService.register(name, email, password)
+                result.value = Result.Success(successResponse)
+            } catch (e: HttpException) {
+                val errorBody = e.response()?.errorBody()?.string()
+                val errorResponse = Gson().fromJson(errorBody, ErrorResponse::class.java)
+                result.value = Result.Error(errorResponse.message)
+            }
         }
         return result
     }
@@ -92,7 +93,7 @@ class UserRepository private constructor(
         ).liveData
     }
 
-    suspend fun getStoryWithLocation(): LiveData<Result<List<ListStoryItem>>>  {
+    suspend fun getStoryWithLocation(): LiveData<Result<List<ListStoryItem>>> {
         val result = MediatorLiveData<Result<List<ListStoryItem>>>()
         result.value = Result.Loading
         try {
@@ -101,13 +102,13 @@ class UserRepository private constructor(
             val getToken = runBlocking { userPreference.getSession().first().token }
             val apiService = ApiConfig.getApiService(getToken)
             val successResponse = apiService.getStoriesWithLocation()
-            if (successResponse.error == false){
+            if (successResponse.error == false) {
                 result.value = Result.Success(successResponse.listStory)
             } else {
                 result.value = Result.Error(successResponse.error.toString())
             }
 
-        } catch (e: HttpException){
+        } catch (e: HttpException) {
             val errorBody = e.response()?.errorBody()?.string()
             val errorResponse = Gson().fromJson(errorBody, ErrorResponse::class.java)
             result.value = Result.Error(errorResponse.message)
@@ -120,7 +121,7 @@ class UserRepository private constructor(
         requestBody: RequestBody
     ): StateFlow<Result<ErrorResponse>> {
         val result = MutableStateFlow<Result<ErrorResponse>>(Result.Loading)
-        withContext(Dispatchers.IO){
+        withContext(Dispatchers.IO) {
             try {
                 val getToken = runBlocking { userPreference.getSession().first().token }
                 val apiService = ApiConfig.getApiService(getToken)

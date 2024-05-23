@@ -59,6 +59,7 @@ class LoginActivity : AppCompatActivity() {
                         is Result.Error -> {
                             showToast(result.error)
                             Log.d("LoginActivity", "LoginActivity error: ${result.error}")
+                            showLoading(false)
                         }
 
                         is Result.Success -> {

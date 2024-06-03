@@ -82,11 +82,14 @@ class UserRepository private constructor(
         // dan menghindari Bad HTTP authentication header format
         val getToken = runBlocking { userPreference.getSession().first().token }
         val apIService = ApiConfig.getApiService(getToken)
-        return Pager(config = PagingConfig(
-            pageSize = 5
-        ), pagingSourceFactory = {
-            StoriesPagingSource(apIService)
-        }).liveData
+        val pager = runBlocking(Dispatchers.IO) {
+            Pager(config = PagingConfig(
+                pageSize = 5
+            ), pagingSourceFactory = {
+                StoriesPagingSource(apIService)
+            }).liveData
+        }
+        return pager
     }
 
     suspend fun getStoryWithLocation(): LiveData<Result<List<ListStoryItem>>> {

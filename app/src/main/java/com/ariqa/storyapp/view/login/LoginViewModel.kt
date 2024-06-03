@@ -1,6 +1,8 @@
 package com.ariqa.storyapp.view.login
 
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import com.ariqa.storyapp.data.Result
 import com.ariqa.storyapp.data.UserRepository
@@ -23,6 +25,8 @@ class LoginViewModel(private val repository: UserRepository) : ViewModel() {
             result.collect{ _postResult.value = it}
         }
     }
+
+    fun getSession(): LiveData<UserModel> = repository.getSession().asLiveData()
 
     fun saveSession(user: UserModel) {
         viewModelScope.launch {

@@ -141,4 +141,13 @@ class LoginActivity : AppCompatActivity() {
             start()
         }
     }
+
+    override fun onStart() {
+        super.onStart()
+        viewModel.getSession().observe(this@LoginActivity){
+            if (it.token != ""){
+                startActivity(Intent(this@LoginActivity, MainActivity::class.java))
+            }
+        }
+    }
 }

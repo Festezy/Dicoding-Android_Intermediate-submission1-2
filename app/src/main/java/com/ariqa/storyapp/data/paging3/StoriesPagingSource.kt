@@ -20,7 +20,6 @@ class StoriesPagingSource(private val apiService: ApiService): PagingSource<Int,
             val responseData = apiService.getStories()
             Log.d("PaggingSource", "load: $responseData")
 
-
             LoadResult.Page(
                 data = responseData.listStory,
                 prevKey = if (page == 1) null else page - 1,

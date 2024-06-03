@@ -28,8 +28,7 @@ import okhttp3.RequestBody
 import retrofit2.HttpException
 
 class UserRepository private constructor(
-    private val apiService: ApiService,
-    private val userPreference: UserPreference
+    private val apiService: ApiService, private val userPreference: UserPreference
 ) {
 
     suspend fun saveSession(user: UserModel) {
@@ -82,15 +81,12 @@ class UserRepository private constructor(
         // token perlu dipanggil manual agar pertama kali login aplikasi berhasil utk getStories
         // dan menghindari Bad HTTP authentication header format
         val getToken = runBlocking { userPreference.getSession().first().token }
-        val apiService = ApiConfig.getApiService(getToken)
-        return Pager(
-            config = PagingConfig(
-                pageSize = 5
-            ),
-            pagingSourceFactory = {
-                StoriesPagingSource(apiService)
-            }
-        ).liveData
+        val apIService = ApiConfig.getApiService(getToken)
+        return Pager(config = PagingConfig(
+            pageSize = 5
+        ), pagingSourceFactory = {
+            StoriesPagingSource(apIService)
+        }).liveData
     }
 
     suspend fun getStoryWithLocation(): LiveData<Result<List<ListStoryItem>>> {
@@ -117,8 +113,7 @@ class UserRepository private constructor(
     }
 
     suspend fun uploadImage(
-        imageFile: MultipartBody.Part,
-        requestBody: RequestBody
+        imageFile: MultipartBody.Part, requestBody: RequestBody
     ): StateFlow<Result<ErrorResponse>> {
         val result = MutableStateFlow<Result<ErrorResponse>>(Result.Loading)
         withContext(Dispatchers.IO) {
@@ -141,11 +136,9 @@ class UserRepository private constructor(
         @Volatile
         private var instance: UserRepository? = null
         fun getInstance(
-            apiService: ApiService,
-            userPreference: UserPreference
-        ): UserRepository =
-            instance ?: synchronized(this) {
-                instance ?: UserRepository(apiService, userPreference)
-            }.also { instance = it }
+            apiService: ApiService, userPreference: UserPreference
+        ): UserRepository = instance ?: synchronized(this) {
+            instance ?: UserRepository(apiService, userPreference)
+        }.also { instance = it }
     }
 }

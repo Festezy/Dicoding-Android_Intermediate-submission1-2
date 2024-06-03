@@ -75,18 +75,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupView() {
-        viewModel.getSession().observe(this) { user ->
-            if (!user.isLogin) {
-                binding.topAppBar.visibility = View.GONE
-                showLoading(true)
-                startActivity(Intent(this, LoginActivity::class.java))
-                finish()
-            }
-        }
-//        if (!allPermissionsGranted()) {
-//            requestPermissionLauncher.launch(REQUIRED_PERMISSION)
-//        }
-
         @Suppress("DEPRECATION")
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             window.insetsController?.hide(WindowInsets.Type.statusBars())
@@ -97,6 +85,14 @@ class MainActivity : AppCompatActivity() {
             )
         }
 
+        viewModel.getSession().observe(this@MainActivity) { user ->
+            if (!user.isLogin) {
+                binding.topAppBar.visibility = View.GONE
+                showLoading(true)
+                startActivity(Intent(this, LoginActivity::class.java))
+                finish()
+            }
+        }
 
         //observer
         viewModel.stories.observe(this@MainActivity) {
